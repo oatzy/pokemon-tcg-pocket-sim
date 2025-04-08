@@ -22,8 +22,9 @@ CARDS = {
     "Cynthia": TWO_STAR,
     "Gastrodon": ONE_STAR,
     "Spiritomb": ONE_STAR,
-    # "Lucario": ONE_STAR,
     # "Garchomp": ONE_STAR,
+    # technically this one can only be pulled from dialga boosters
+    # "Lucario": ONE_STAR,
 }
 
 # probability of a rare booster
