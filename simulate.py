@@ -45,7 +45,7 @@ def _sample(probabilities):
     cumm = 0
     r = random.random()
 
-    for k, p in probabilities.items():
+    for k, p in probabilities:
         cumm += p
         if r <= cumm:
             return k
@@ -53,6 +53,8 @@ def _sample(probabilities):
     return None
 
 
+# card probability functions
+# standalone instead of lambdas so they can be cached
 def _pull_rare(_):
     return RARE_PULL
 
@@ -67,7 +69,7 @@ def _pull_5(c):
 
 @lru_cache
 def _probabilities(booster, card_probability):
-    return {name: card_probability(c) for name, c in CARDS.items() if c.booster == booster}
+    return [(name, card_probability(c)) for name, c in CARDS.items() if c.booster == booster]
 
 
 def open_rare(booster):
