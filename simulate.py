@@ -104,32 +104,50 @@ def cost_for_remaining(pulled):
     return sum(c.cost for name, c in CARDS.items() if name not in pulled)
 
 
-def simulate(boosters):
+def rotating_generator(booster_ratio):
+    # TODO: ignore booster if all cards pulled for it
+    boosters = deque(chain.from_iterable([k] * v for k, v in booster_ratio.items()))
+
+    def inner(opened, pulled):
+        boosters.rotate(-1)
+        return boosters[0]
+
+    return inner
+
+
+def dialga_first(opened, pulled):
+    if "Lucario" not in pulled and opened["Dialga"] < 80:
+        return "Dialga"
+    return "Palkia"
+
+
+def simulate(booster_generator):
     need = set(CARDS)
 
     # keep track of when we pulled each card, including duplicates
     pulled = defaultdict(list)
-    opened = 0
+    opened = defaultdict(int)
+    total_opened = 0
 
     while True:
-        boosters.rotate()
-        booster = boosters[0]
+        booster = booster_generator(opened, pulled)
 
         if rare_booster():
             pull = open_rare(booster)
         else:
             pull = open_regular(booster)
 
-        opened += 1
+        opened[booster] += 1
+        total_opened += 1
 
         for c in pull:
-            pulled[c].append(opened)
+            pulled[c].append(total_opened)
 
         if set(pulled) == need:
             # we've pulled all the cards we need
             break
 
-        if cost_for_remaining(tuple(pulled)) <= opened + START_POINTS:
+        if cost_for_remaining(tuple(pulled)) <= total_opened + START_POINTS:
             # we have enough points
             break
 
@@ -140,31 +158,38 @@ def main():
     runs = 10000
 
     # ratio of booster variants to open
-    booster_ratio = {"Palkia": 1, "Dialga": 0}
-    boosters = deque(chain.from_iterable([k] * v for k, v in booster_ratio.items()))
+    booster_ratio = {"Palkia": 1, "Dialga": 1}
 
     outcomes = defaultdict(int)
     dupes = defaultdict(int)
 
-    all_opened = Counter()
+    boosters_opened = defaultdict(int)
+    opened_hist = Counter()
 
     excess = 0
 
     for _ in range(runs):
-        opened, pulled = simulate(boosters)
-        all_opened.update([opened])
+        opened, pulled = simulate(dialga_first)
+        # opened, pulled = simulate(rotating_generator(booster_ratio))
+
+        for k, v in opened.items():
+            boosters_opened[k] += v
+        num_opened = sum(opened.values())
+        opened_hist.update([num_opened])
 
         outcomes["(none)" if not pulled else ", ".join(sorted(pulled))] += 1
 
         for k, v in pulled.items():
             dupes[k] += len(v)
 
-        excess += (opened + START_POINTS) - cost_for_remaining(tuple(pulled))
+        excess += (num_opened + START_POINTS) - cost_for_remaining(tuple(pulled))
 
-    print(f"# Average boosters opened - {sum(all_opened.elements()) / runs}")
+    print(f"# Average boosters opened - {sum(opened_hist.elements()) / runs}")
+    for k, v in boosters_opened.items():
+        print(f" - {k} - {v/runs}")
 
-    most_common = all_opened.most_common(1)[0]
-    above_mode = sum(v for k, v in all_opened.items() if k > most_common[0])
+    most_common = opened_hist.most_common(1)[0]
+    above_mode = sum(v for k, v in opened_hist.items() if k > most_common[0])
     print(f"\n# Most likely number opened - {most_common[0]} ({most_common[1]/runs})")
     print(f"# Probability above most common - {above_mode / runs}")
 
@@ -174,8 +199,8 @@ def main():
     for k, v in sorted(dupes.items(), key=lambda i: i[1]):
         print(f" - {k}: {v/runs}")
 
-    #print("\n# Probabilities of card sets")
-    #for k, v in sorted(outcomes.items(), key=lambda i: i[1]):
+    # print("\n# Probabilities of card sets")
+    # for k, v in sorted(outcomes.items(), key=lambda i: i[1]):
     #    print(f" - {k}: {v/runs}")
 
 
