@@ -25,9 +25,9 @@ TWO_STAR = partial(Card, 250, 0.00041, 0.00166)
 CARDS = {
     "Cynthia": TWO_STAR("Palkia"),
     "Gastrodon": ONE_STAR("Palkia"),
-    "Spiritomb": ONE_STAR("Palkia"),
-    "Garchomp": ONE_STAR("Palkia"),
-    "Lucario": ONE_STAR("Dialga"),
+    #"Spiritomb": ONE_STAR("Palkia"),
+    #"Garchomp": ONE_STAR("Palkia"),
+    #"Lucario": ONE_STAR("Dialga"),
 }
 
 # probability of a rare booster
@@ -38,7 +38,7 @@ RARE_PROB = 0.0005
 RARE_PULL = 0.03846
 
 # how many pack points (in boosters) you have to begin with
-START_POINTS = 0 // 5
+START_POINTS = 1065 // 5
 
 
 def _sample(probabilities):
@@ -107,15 +107,14 @@ def cost_for_remaining(pulled):
 def rotating_generator(booster_ratio):
     # TODO: ignore booster if all cards pulled for it
     boosters = deque(chain.from_iterable([k] * v for k, v in booster_ratio.items()))
-
     def inner(opened, pulled):
         boosters.rotate(-1)
         return boosters[0]
-
     return inner
 
 
 def dialga_first(opened, pulled):
+    # TODO: generalise
     if "Lucario" not in pulled and opened["Dialga"] < 80:
         return "Dialga"
     return "Palkia"
@@ -158,7 +157,7 @@ def main():
     runs = 10000
 
     # ratio of booster variants to open
-    booster_ratio = {"Palkia": 1, "Dialga": 1}
+    booster_ratio = {"Palkia": 1, "Dialga": 0}
 
     outcomes = defaultdict(int)
     dupes = defaultdict(int)
@@ -169,8 +168,8 @@ def main():
     excess = 0
 
     for _ in range(runs):
-        opened, pulled = simulate(dialga_first)
-        # opened, pulled = simulate(rotating_generator(booster_ratio))
+        #opened, pulled = simulate(dialga_first)  
+        opened, pulled = simulate(rotating_generator(booster_ratio))
 
         for k, v in opened.items():
             boosters_opened[k] += v
@@ -184,7 +183,8 @@ def main():
 
         excess += (num_opened + START_POINTS) - cost_for_remaining(tuple(pulled))
 
-    print(f"# Average boosters opened - {sum(opened_hist.elements()) / runs}")
+    avg = int(round(sum(opened_hist.elements()) / runs))
+    print(f"# Average boosters opened - {avg} ({avg * 5} pts)")
     for k, v in boosters_opened.items():
         print(f" - {k} - {v/runs}")
 
@@ -199,9 +199,9 @@ def main():
     for k, v in sorted(dupes.items(), key=lambda i: i[1]):
         print(f" - {k}: {v/runs}")
 
-    # print("\n# Probabilities of card sets")
-    # for k, v in sorted(outcomes.items(), key=lambda i: i[1]):
-    #    print(f" - {k}: {v/runs}")
+    print("\n# Probabilities of card sets")
+    for k, v in sorted(outcomes.items(), key=lambda i: i[1]):
+        print(f" - {k}: {v/runs}")
 
 
 if __name__ == "__main__":
