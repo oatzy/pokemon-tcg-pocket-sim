@@ -1,58 +1,59 @@
 {
-    "name": "Triumphant Light",
-    "variants": ["Arceus"],
+    "name": "Genetic Apex",
+    "variants": ["Charizard", "Mewtwo", "Pikachu"],
     "rarities": [
         {
             "name": "CROWN",
             "cost": 2500, 
             "offering_rate": [0, 0, 0, 0.040, 0.160], 
-            "counts": {"Arceus": 1},
+            "counts": {"_any_": 3},
+            "rare_counts": {"Charizard": 1, "Mewtwo": 1, "Pikachu": 1},
             "rare": true
         },
         {
             "name": "STAR3",
             "cost": 1500, 
             "offering_rate": [0, 0, 0, 0.222, 0.888], 
-            "counts": {"Arceus": 1}, 
+            "counts": {"Charizard": 1, "Mewtwo": 1, "Pikachu": 1}, 
             "rare": true
         },
         {
             "name": "STAR2",
             "cost": 1250,
             "offering_rate": [0, 0, 0, 0.500, 2.000], 
-            "counts": {"Arceus": 13}, 
+            "counts": {"Charizard": 10, "Mewtwo": 9, "Pikachu": 10}, 
             "rare": true
         },
         {
             "name": "STAR1",
             "cost": 400,
             "offering_rate": [0, 0, 0, 2.572, 10.288], 
-            "counts": {"Arceus": 6}, 
+            "counts": {"Charizard": 8, "Mewtwo": 8, "Pikachu": 8}, 
             "rare": true
         },
         {
             "name": "DIAMOND4",
             "cost": 500,
             "offering_rate": [0, 0, 0, 1.666, 6.664],
-            "counts": {"Arceus": 5}
+            "counts": {"Charizard": 5, "Mewtwo": 5, "Pikachu": 5}
         },
         {
             "name": "DIAMOND3",
             "cost": 150,
             "offering_rate": [0, 0, 0, 5.000, 20.000],
-            "counts": {"Arceus": 13} 
+            "counts": {"Charizard": 14, "Mewtwo": 14, "Pikachu": 14}
         },
         {
             "name": "DIAMOND2",
             "cost": 70, 
             "offering_rate": [0, 0, 0, 90.000, 60.000],
-            "counts": {"Arceus": 26}
+            "counts": {"_any_": 18, "Charizard": 17, "Mewtwo": 17, "Pikachu": 17}
         },
         {
             "name": "DIAMOND1",
             "cost": 35,
             "offering_rate": [100, 100, 100, 0, 0],
-            "counts": {"Arceus": 31}
+            "counts": {"_any_": 25, "Charizard": 25, "Mewtwo": 25, "Pikachu": 25}
         }
     ]
 }
