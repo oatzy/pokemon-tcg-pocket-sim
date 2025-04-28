@@ -177,9 +177,31 @@ class Collection:
     def load_initial_state(self, state):
         for variant, count in state.items():
             self.collected.update(islice(self.rarity.iter_variant_cards(variant), count))
+            
         if self.remaining() == 0:
             self.completed_at = 0
 
+
+@dataclass
+class MissionCollection(Collection):
+    mission: Optional[dict] = None
+
+    def __post_init__(self):
+        self.goal = set()
+        if not self.mission:
+            return
+
+        for variant, count in self.mission.items():
+            self.goal.update(islice(self.rarity.iter_variant_cards(variant), count))
+
+    def iter_missing(self):
+        return (i for i in self.goal if i not in self.collected)
+    
+    def remaining(self):
+        return len(list(self.iter_missing()))
+
+
+# === Simulation Helpers ===
 
 def rare_booster():
     return 100 * random.random() <= RARE_PROBABILITY
@@ -226,17 +248,31 @@ def completed_common(collection):
     return all(v.completed_at is not None for v in collection.values() if not v.rarity.rare)
 
 
-def simulate(expansion, initial_state=None, stop_at_all_common=False):
-    collected = {x.name: Collection(x) for x in expansion.rarities}
+def completed_variant(collection, variant):
+    # TODO: how?
+    return False
+
+
+# === Simulation ===
+
+def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=False):
+    if mission:
+        collected = {
+            x.name: MissionCollection(x, mission=mission.get(x.name)) 
+            for x in expansion.rarities
+            if x.name in mission
+        }
+    else:
+        collected = {x.name: Collection(x) for x in expansion.rarities}
 
     pack_points = 0
-    opened = 0
 
     if initial_state:
         pack_points = initial_state.get("pack_points", 0)
         for rarity, counts in initial_state["collected"].items():
             collected[rarity].load_initial_state(counts)
 
+    opened = 0
     all_common_at = None
     
     # repeatedly cycle though all variants
@@ -252,7 +288,8 @@ def simulate(expansion, initial_state=None, stop_at_all_common=False):
         pack_points += 5
 
         for rarity, pull in pulled:
-            collected[rarity].add(pull, opened)
+            if rarity in collected:
+                collected[rarity].add(pull, opened)
 
         if required_pack_points(collected) == pack_points:
             buy_remaining(collected, pack_points, opened)
@@ -272,7 +309,9 @@ def simulate(expansion, initial_state=None, stop_at_all_common=False):
             break
 
     return opened, all_common_at, collected
-        
+
+
+# === Output Helpers ===
 
 def _avg(counter):
     if el := list(counter.elements()):
@@ -307,18 +346,21 @@ def dump_histograms(histograms, file=None):
         print(",".join(map(str, [i] + [histograms[k].get(i, 0) for k in keys])), file=file)
 
 
+# === Main ===
+
 def main():
-    # TODO: add support for sub-set goals and initial state
-    # (i.e. re-implement the orignal mission simulation)
     parser = ArgumentParser()
     parser.add_argument("expansion_json", help="path to an expansion data json")
-    parser.add_argument("-i", "--initial_state", help="path to initial state info")
+    parser.add_argument("-i", "--initial_state", help="path to initial state json")
+    parser.add_argument("-m", "--mission", help="path to mission json")
     parser.add_argument("-r", "--runs", default=100, type=int, help="number of simulations to run")
     parser.add_argument("-c", "--stop-at-common", action="store_true", help="stop simulation when all common are collected")
     parser.add_argument("-p", "--percentiles", action="store_true", help="print percentiles")
     parser.add_argument("-o", "--output-histograms", help="path to dump histograms to")
 
     args = parser.parse_args()
+
+    # --- Setup ---
     
     with open(args.expansion_json) as f:
         data = json.load(f)
@@ -329,16 +371,24 @@ def main():
         with open(args.initial_state) as f:
             initial_state = json.load(f)
 
+    mission = None
+    if args.mission:
+        with open(args.mission) as f:
+            mission = json.load(f)
+
     opened_hist = Counter()
     common_opened_hist = Counter()
     rarity_hist = {x.name: Counter() for x in expansion.rarities}
 
     bought = defaultdict(int)
 
+    # --- Simulation ---
+    
     for _ in range(args.runs):
         opened, all_common_at, collected = simulate(
             expansion, 
             initial_state=initial_state,
+            mission=mission["cards"],
             stop_at_all_common=args.stop_at_common
         )
 
@@ -351,6 +401,7 @@ def main():
             if collection.bought:
                 bought[rarity] += len(collection.bought)
 
+    # --- Results ---
     
     print(f"# Average packs opened: {_avg(opened_hist)}")
     print(f"# Average opened for all common: {_avg(common_opened_hist)}")

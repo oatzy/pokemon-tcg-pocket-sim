@@ -1,5 +1,6 @@
 {
     "expansion": "Triumphant Light",
+    "mission": "Collect all the cards",
     "pack_points": 295,
     "collected": {
         "DIAMOND1": {"Arceus": 31},

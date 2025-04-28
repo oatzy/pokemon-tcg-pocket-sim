@@ -1,0 +1,8 @@
+{
+    "name": "Champion of the Sinnoh Region",
+    "expansion": "Space-Time Smackdown",
+    "cards": {
+        "STAR2": {"Palkia": 1}, 
+        "STAR1": {"Dialga": 1, "Palkia": 3}
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "expansion": "Mythical Island",
+    "mission": "Mythical Island Tale of Adventure",
+    "cards": {
+        "DIAMOND2": {"Mew": 2},
+        "STAR2": {"Mew": 1},
+        "STAR3": {"Mew": 1}
+    }
+}

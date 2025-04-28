@@ -1,0 +1,10 @@
+{
+    "expansion": "Triumphant Light",
+    "mission": "Pokemon from Ancient Records",
+    "cards": {
+        "DIAMOND3": {"Arceus": 4},
+        "DIAMOND4": {"Arceus": 1},
+        "STAR1": {"Arceus": 1},
+        "STAR2": {"Arceus": 1}
+    }
+}

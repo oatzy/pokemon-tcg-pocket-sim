@@ -1,0 +1,15 @@
+{
+    "expansion": "Shining Revelry",
+    "mission": "Collect all the cards",
+    "pack_points": 250,
+    "collected": {
+        "DIAMOND1": {"Charizard": 32},
+        "DIAMOND2": {"Charizard": 21},
+        "DIAMOND3": {"Charizard": 7},
+        "DIAMOND4": {"Charizard": 7},
+        "STAR1": {"Charizard": 5},
+        "STAR2": {"Charizard": 2},
+        "RAINBOW1": {"Charizard": 4}
+    }
+}
+    

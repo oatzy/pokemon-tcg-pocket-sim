@@ -17,7 +17,7 @@ Blog post: _coming soon_
 
 ### Example results
 
-The following are the average number of packs you would need to open to obtain all the common (1 to 4 diamond) card, and the complete set of all cards.
+The following are the average number of packs you would need to open to obtain all the common (1 to 4 diamond) cards, and the complete set of all cards.
 
 | Expansion            | Common | Complete |
 +----------------------+--------+----------+
@@ -27,10 +27,29 @@ The following are the average number of packs you would need to open to obtain a
 | Triumphant Light     |    191 |      876 |
 | Shining Revelry      |    303 |     1185 |
 
+This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
+
+### Missions
+
+Missions allow you to restrict the simulation to obtaining some subset of cards within an expansion.
+
+Missions are defined in json format files. The `missions` directory contains some examples.
+
+NOTE: the design doesn't currently support missions with duplicate cards
+
+### Initial state
+
+Initial state allows you to tell the simulation which (unique) cards you already have, and how many pack points. The simulation will then estimate how long it will take to complete the set.
+
+When combined with a 'mission', the initial state should be restricted to cards within the mission - e.g. if the mission is to obtain 4 one-star cards and you already have 2 one-star cards, one from the mission and one not, the initial state is 1 one-star card.
+
+Initial state is define in a json format file. The `collected` directory contains some examples.
 
 ## Simulate Mission
 
 The goal of this simulation is to determine - for a given set of cards, how many packs would I need to open to either pull all the cards or have enough pack points to buy the ones I haven't pulled yet.
+
+This was written before the more general `simulate_expansion.py` script. It's less flexible, and the output is slightly different.
 
 Currently it's hardcoded for pulling the "Champion of the Sinnoh Region" secret mission cards from "Space Time Smackdown" Palkia boosters.
 
