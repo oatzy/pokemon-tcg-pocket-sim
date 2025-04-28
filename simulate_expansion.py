@@ -3,7 +3,7 @@ import random
 from argparse import ArgumentParser
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from itertools import accumulate, chain, cycle
+from itertools import accumulate, chain, cycle, islice
 from typing import Optional
 
 
@@ -20,17 +20,17 @@ ANY = "_any_"
 class Rarity:
     # name of rarity type
     name: str
-
+    
     # cost to buy in pack points
     cost: int
-
+    
     # % rate for each of the 5 slots
     offering_rate: tuple[int]
-
+    
     # counts[ANY] = cards appearing in all variants
     # counts[x] = variant exclusive cards
     counts: dict[str, int]
-
+    
     # whether it appears in rare boosters
     rare: bool = False
 
@@ -41,7 +41,7 @@ class Rarity:
         self._any_count = self.counts.get(ANY, 0)
 
         self._offsets = _offsets(self.counts)
-
+        
         if self.rare:
             if self.rare_counts is None:
                 self.rare_counts = self.counts
@@ -50,10 +50,19 @@ class Rarity:
     def iter_rare_cards(self, variant):
         if not self.rare:
             return
+            
         any_count = self.rare_counts.get(ANY, 0)
         yield from range(any_count)
+        
         offset = any_count + self._rare_offsets[variant]
         yield from (i + offset for i in range(self.rare_counts.get(variant, 0)))
+
+    def iter_variant_cards(self, variant):
+        if variant == ANY:
+            return range(self._any_count)
+            
+        offset = self._any_count + self._offsets[variant]
+        yield from (i + offset for i in range(self.counts.get(variant, 0)))
 
     def count(self, variant=None):
         if variant is not None:
@@ -69,14 +78,14 @@ class Rarity:
 
 def _offsets(counts):
     offsets = {}
-
+    
     offset = 0
     for k, v in counts.items():
         if k == ANY:
             continue
         offsets[k] = offset
         offset += v
-
+    
     return offsets
 
 
@@ -88,11 +97,17 @@ class Expansion:
 
     def __post_init__(self):
         # pre-calculate cumulative probability by position
-        self._cum_prob = [list(accumulate(x.offering_rate[p] for x in self.rarities)) for p in range(5)]
-
+        self._cum_prob = [
+            list(accumulate(x.offering_rate[p] for x in self.rarities))
+            for p in range(5)
+        ]
+        
         # pre-generate a list of all rare cards for rare booster picks
         self._rare_cards = {
-            v: tuple(chain.from_iterable(((x.name, i) for i in x.iter_rare_cards(v)) for x in self.rarities if x.rare))
+            v: tuple(chain.from_iterable(
+                ((x.name, i) for i in x.iter_rare_cards(v)) 
+                for x in self.rarities if x.rare
+            ))
             for v in self.variants
         }
 
@@ -101,9 +116,9 @@ class Expansion:
         return Expansion(
             name=data["name"],
             variants=data["variants"],
-            rarities=tuple(Rarity(**i) for i in sorted(data["rarities"], key=lambda x: -x["cost"])),
+            rarities=tuple(Rarity(**i) for i in sorted(data["rarities"], key=lambda x: -x["cost"]))
         )
-
+        
     def open_rare(self, variant):
         return random.choices(self._rare_cards[variant], k=5)
 
@@ -118,16 +133,16 @@ class Expansion:
             # due to rounding, sometimes probabilities don't add to 100
             # if we fail to pick, retry
             return self._pick(pos, variant)
-
+                
         return rarity.name, rarity.pick(variant)
-
+    
     def open_regular(self, variant):
         return [self._pick(i, variant) for i in range(5)]
 
 
 @dataclass
 class Collection:
-
+    
     # rarity of cards in collection
     rarity: Rarity
 
@@ -142,22 +157,28 @@ class Collection:
 
     def add(self, item, opened):
         self.collected.add(item)
-
+        
         if self.completed_at is None and self.remaining() == 0:
             self.completed_at = opened
 
     def buy(self, item, opened):
         self.add(item, opened)
         self.bought.append(item)
-
+    
     def iter_missing(self):
         return (i for i in range(self.rarity.count()) if i not in self.collected)
-
+    
     def remaining(self):
         return self.rarity.count() - len(self.collected)
-
+    
     def remaining_cost(self):
         return self.rarity.cost * self.remaining()
+
+    def load_initial_state(self, state):
+        for variant, count in state.items():
+            self.collected.update(islice(self.rarity.iter_variant_cards(variant), count))
+        if self.remaining() == 0:
+            self.completed_at = 0
 
 
 def rare_booster():
@@ -184,11 +205,11 @@ def pick_rarest(collection, variant):
 def buy_remaining(collection, pack_points, opened):
     for rarity, collected in collection.items():
         for missing in collected.iter_missing():
-
+            
             if pack_points < collected.rarity.cost:
                 # likely a programming error
                 raise RuntimeError("Ran out of points")
-
+                
             collected.buy(missing, opened)
             pack_points -= collected.rarity.cost
 
@@ -205,18 +226,23 @@ def completed_common(collection):
     return all(v.completed_at is not None for v in collection.values() if not v.rarity.rare)
 
 
-def simulate(expansion, stop_at_all_common=False):
+def simulate(expansion, initial_state=None, stop_at_all_common=False):
     collected = {x.name: Collection(x) for x in expansion.rarities}
 
-    all_common_at = None
-
-    opened = 0
     pack_points = 0
+    opened = 0
 
+    if initial_state:
+        pack_points = initial_state.get("pack_points", 0)
+        for rarity, counts in initial_state["collected"].items():
+            collected[rarity].load_initial_state(counts)
+
+    all_common_at = None
+    
     # repeatedly cycle though all variants
     # TODO: stop opening variant when completed
     for variant in cycle(expansion.variants):
-
+        
         if rare_booster():
             pulled = expansion.open_rare(variant)
         else:
@@ -230,9 +256,9 @@ def simulate(expansion, stop_at_all_common=False):
 
         if required_pack_points(collected) == pack_points:
             buy_remaining(collected, pack_points, opened)
-
+        
         if pack_points == MAX_PACK_POINTS and not completed_all(collected):
-            # rarity, picked = pick_most_expensive(collected)
+            #rarity, picked = pick_most_expensive(collected)
             rarity, picked = pick_rarest(collected, variant)
             collected[rarity].buy(picked, opened)
             pack_points -= collected[rarity].rarity.cost
@@ -241,12 +267,12 @@ def simulate(expansion, stop_at_all_common=False):
             all_common_at = opened
             if stop_at_all_common:
                 break
-
+        
         if completed_all(collected):
             break
 
     return opened, all_common_at, collected
-
+        
 
 def _avg(counter):
     if el := list(counter.elements()):
@@ -258,7 +284,7 @@ def _percentiles(counter, total):
     points = [i * total for i in (0.5, 0.75, 0.9, 0.95)]
     results = []
     values = sorted(counter.items())
-
+    
     offset = 0
     s = 0
     i = 0
@@ -275,7 +301,7 @@ def _percentiles(counter, total):
 def dump_histograms(histograms, file=None):
     upper = max(max(h.keys()) for h in histograms.values())
     keys = list(histograms)
-
+    
     print(",".join(["opened", *keys]), file=file)
     for i in range(upper + 1):
         print(",".join(map(str, [i] + [histograms[k].get(i, 0) for k in keys])), file=file)
@@ -286,18 +312,22 @@ def main():
     # (i.e. re-implement the orignal mission simulation)
     parser = ArgumentParser()
     parser.add_argument("expansion_json", help="path to an expansion data json")
+    parser.add_argument("-i", "--initial_state", help="path to initial state info")
     parser.add_argument("-r", "--runs", default=100, type=int, help="number of simulations to run")
-    parser.add_argument(
-        "-c", "--stop-at-common", action="store_true", help="stop simulation when all common are collected"
-    )
+    parser.add_argument("-c", "--stop-at-common", action="store_true", help="stop simulation when all common are collected")
     parser.add_argument("-p", "--percentiles", action="store_true", help="print percentiles")
     parser.add_argument("-o", "--output-histograms", help="path to dump histograms to")
 
     args = parser.parse_args()
-
+    
     with open(args.expansion_json) as f:
         data = json.load(f)
         expansion = Expansion.from_json(data)
+
+    initial_state = None
+    if args.initial_state:
+        with open(args.initial_state) as f:
+            initial_state = json.load(f)
 
     opened_hist = Counter()
     common_opened_hist = Counter()
@@ -306,7 +336,11 @@ def main():
     bought = defaultdict(int)
 
     for _ in range(args.runs):
-        opened, all_common_at, collected = simulate(expansion, stop_at_all_common=args.stop_at_common)
+        opened, all_common_at, collected = simulate(
+            expansion, 
+            initial_state=initial_state,
+            stop_at_all_common=args.stop_at_common
+        )
 
         opened_hist.update([opened])
         common_opened_hist.update([all_common_at])
@@ -317,6 +351,7 @@ def main():
             if collection.bought:
                 bought[rarity] += len(collection.bought)
 
+    
     print(f"# Average packs opened: {_avg(opened_hist)}")
     print(f"# Average opened for all common: {_avg(common_opened_hist)}")
 
@@ -330,11 +365,11 @@ def main():
         print("\n# Average bought by rarity:")
         for rarity, count in bought.items():
             print(f"  - {rarity}: {count / args.runs}")
-
+    
     if args.percentiles:
         print("\n# Percentiles")
         print("\nTarget, 50, 75, 90, 95")
-
+        
         print(f"ALL, {', '.join(map(str, _percentiles(opened_hist, args.runs)))}")
         print(f"COMMON, {', '.join(map(str, _percentiles(common_opened_hist, args.runs)))}")
         for rarity, hist in rarity_hist.items():
@@ -342,9 +377,10 @@ def main():
 
     if args.output_histograms:
         histograms = {"ALL": opened_hist, "COMMON": common_opened_hist, **rarity_hist}
-        with open(args.output_histograms, "w") as f:
+        with open(args.output_histograms, 'w') as f:
             dump_histograms(histograms, file=f)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+
