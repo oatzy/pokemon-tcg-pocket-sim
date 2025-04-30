@@ -26,6 +26,7 @@ The following are the average number of packs you would need to open to obtain a
 | Space-Time Smackdown |    460 |     1753 |
 | Triumphant Light     |    191 |      876 |
 | Shining Revelry      |    303 |     1185 |
+| Celestial Guardians  |    484 |     2143 |
 
 This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
 
