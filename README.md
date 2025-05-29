@@ -19,14 +19,15 @@ Blog post: _coming soon_
 
 The following are the average number of packs you would need to open to obtain all the common (1 to 4 diamond) cards, and the complete set of all cards.
 
-| Expansion            | Common | Complete |
-| -------------------- | -----: | -------: |
-| Genetic Apex         |    781 |     2208 |
-| Mythical Island      |    149 |      700 |
-| Space-Time Smackdown |    460 |     1753 |
-| Triumphant Light     |    191 |      876 |
-| Shining Revelry      |    303 |     1185 |
-| Celestial Guardians  |    484 |     2143 |
+| Expansion               | Common | Complete |
+| ----------------------- | -----: | -------: |
+| Genetic Apex            |    781 |     2208 |
+| Mythical Island         |    149 |      700 |
+| Space-Time Smackdown    |    460 |     1753 |
+| Triumphant Light        |    191 |      876 |
+| Shining Revelry         |    303 |     1185 |
+| Celestial Guardians     |    484 |     2143 |
+| Extradimensional Crisis |    148 |      925 |
 
 This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
 

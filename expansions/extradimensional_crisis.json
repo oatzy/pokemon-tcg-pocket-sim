@@ -1,0 +1,72 @@
+{
+    "name": "Extradimensional Crisis",
+    "variants": ["Buzzbug"],
+    "rarities": [
+        {
+            "name": "CROWN",
+            "cost": 2500, 
+            "offering_rate": [0, 0, 0, 0.040, 0.160], 
+            "counts": {"Buzzbug": 1},
+            "rare": true
+        },
+        {
+            "name": "RAINBOW2",
+            "cost": 1350, 
+            "offering_rate": [0, 0, 0, 0.333, 1.333], 
+            "counts": {"Buzzbug": 4}, 
+            "rare": true
+        },
+        {
+            "name": "RAINBOW1",
+            "cost": 1000, 
+            "offering_rate": [0, 0, 0, 0.714, 2.857], 
+            "counts": {"Buzzbug": 10}, 
+            "rare": true
+        },
+        {
+            "name": "STAR3",
+            "cost": 1500, 
+            "offering_rate": [0, 0, 0, 0.222, 0.888], 
+            "counts": {"Buzzbug": 1}, 
+            "rare": true
+        },
+        {
+            "name": "STAR2",
+            "cost": 1250,
+            "offering_rate": [0, 0, 0, 0.500, 2.000], 
+            "counts": {"Buzzbug": 12}, 
+            "rare": true
+        },
+        {
+            "name": "STAR1",
+            "cost": 400,
+            "offering_rate": [0, 0, 0, 2.572, 10.288], 
+            "counts": {"Buzzbug": 6}, 
+            "rare": true
+        },
+        {
+            "name": "DIAMOND4",
+            "cost": 500,
+            "offering_rate": [0, 0, 0, 1.666, 6.664],
+            "counts": {"Buzzbug": 5}
+        },
+        {
+            "name": "DIAMOND3",
+            "cost": 150,
+            "offering_rate": [0, 0, 0, 4.952, 19.810],
+            "counts": {"Buzzbug": 8} 
+        },
+        {
+            "name": "DIAMOND2",
+            "cost": 70, 
+            "offering_rate": [0, 0, 0, 89.000, 56.000],
+            "counts": {"Buzzbug": 24}
+        },
+        {
+            "name": "DIAMOND1",
+            "cost": 35,
+            "offering_rate": [100, 100, 100, 0, 0],
+            "counts": {"Buzzbug": 32}
+        }
+    ]
+}

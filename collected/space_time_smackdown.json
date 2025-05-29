@@ -1,0 +1,15 @@
+{
+    "expansion": "Space-Time Smackdown",
+    "mission": "Collect all the cards",
+    "pack_points": 20,
+    "collected": {
+        "DIAMOND1": {"_any_": 23, "Dialga": 23, "Palkia": 21},
+        "DIAMOND2": {"_any_": 16, "Dialga": 18, "Palkia": 20},
+        "DIAMOND3": {"_any_": 4, "Dialga": 7, "Palkia": 10},
+        "DIAMOND4": {"Dialga": 5, "Palkia": 5},
+        "STAR1": {"Dialga": 8, "Palkia": 12},
+        "STAR2": {"Dialga": 1, "Palkia": 4},
+        "CROWN": {"_any_": 1}
+    }
+}
+    
