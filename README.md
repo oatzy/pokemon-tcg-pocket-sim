@@ -4,7 +4,7 @@ Monte Carlo simulation of pulling cards from Pokemon TCG Pocket boosters.
 
 ## Simulate Expansion
 
-The goal of this script is to estimate how long it would take to pull all cards is each expansion of Pokemon TCG Pocket.
+The goal of this script is to estimate how long it would take to pull all cards in each expansion of Pokemon TCG Pocket.
 
 This assumes opening packs until all the cards have been pulled at least once, or until we acquire enough pack points to buy the ones that haven't been pulled.
 Since you can only hold a maximum of 2,500 pack points, if we hit that number we buy the rarest remaining card then continue opening boosters.
@@ -28,6 +28,7 @@ The following are the average number of packs you would need to open to obtain a
 | Shining Revelry         |    303 |     1185 |
 | Celestial Guardians     |    484 |     2143 |
 | Extradimensional Crisis |    148 |      925 |
+| Eevee Grove             |    184 |      952 |
 
 This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
 
