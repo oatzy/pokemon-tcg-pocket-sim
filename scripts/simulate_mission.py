@@ -1,3 +1,9 @@
+"""
+Original iteration of the simulation
+
+Focused specifically on the Champion of Sinnoh secret mission.
+"""
+
 import random
 from collections import defaultdict, deque, Counter
 from dataclasses import dataclass
@@ -25,9 +31,9 @@ TWO_STAR = partial(Card, 250, 0.00041, 0.00166)
 CARDS = {
     "Cynthia": TWO_STAR("Palkia"),
     "Gastrodon": ONE_STAR("Palkia"),
-    #"Spiritomb": ONE_STAR("Palkia"),
-    #"Garchomp": ONE_STAR("Palkia"),
-    #"Lucario": ONE_STAR("Dialga"),
+    # "Spiritomb": ONE_STAR("Palkia"),
+    # "Garchomp": ONE_STAR("Palkia"),
+    # "Lucario": ONE_STAR("Dialga"),
 }
 
 # probability of a rare booster
@@ -69,7 +75,9 @@ def _pull_5(c):
 
 @lru_cache
 def _probabilities(booster, card_probability):
-    return [(name, card_probability(c)) for name, c in CARDS.items() if c.booster == booster]
+    return [
+        (name, card_probability(c)) for name, c in CARDS.items() if c.booster == booster
+    ]
 
 
 def open_rare(booster):
@@ -107,9 +115,11 @@ def cost_for_remaining(pulled):
 def rotating_generator(booster_ratio):
     # TODO: ignore booster if all cards pulled for it
     boosters = deque(chain.from_iterable([k] * v for k, v in booster_ratio.items()))
+
     def inner(opened, pulled):
         boosters.rotate(-1)
         return boosters[0]
+
     return inner
 
 
@@ -168,7 +178,7 @@ def main():
     excess = 0
 
     for _ in range(runs):
-        #opened, pulled = simulate(dialga_first)  
+        # opened, pulled = simulate(dialga_first)
         opened, pulled = simulate(rotating_generator(booster_ratio))
 
         for k, v in opened.items():
@@ -186,22 +196,22 @@ def main():
     avg = int(round(sum(opened_hist.elements()) / runs))
     print(f"# Average boosters opened - {avg} ({avg * 5} pts)")
     for k, v in boosters_opened.items():
-        print(f" - {k} - {v/runs}")
+        print(f" - {k} - {v / runs}")
 
     most_common = opened_hist.most_common(1)[0]
     above_mode = sum(v for k, v in opened_hist.items() if k > most_common[0])
-    print(f"\n# Most likely number opened - {most_common[0]} ({most_common[1]/runs})")
+    print(f"\n# Most likely number opened - {most_common[0]} ({most_common[1] / runs})")
     print(f"# Probability above most common - {above_mode / runs}")
 
     print(f"\n# Average left over points - {5 * excess / runs}")
 
     print("\n# Average copies of each card")
     for k, v in sorted(dupes.items(), key=lambda i: i[1]):
-        print(f" - {k}: {v/runs}")
+        print(f" - {k}: {v / runs}")
 
     print("\n# Probabilities of card sets")
     for k, v in sorted(outcomes.items(), key=lambda i: i[1]):
-        print(f" - {k}: {v/runs}")
+        print(f" - {k}: {v / runs}")
 
 
 if __name__ == "__main__":

@@ -3,13 +3,12 @@
     "mission": "Collect all the cards",
     "pack_points": 295,
     "collected": {
-        "DIAMOND1": {"Arceus": 31},
-        "DIAMOND2": {"Arceus": 26},
-        "DIAMOND3": {"Arceus": 12},
-        "DIAMOND4": {"Arceus": 5},
-        "STAR1": {"Arceus": 6},
-        "STAR2": {"Arceus": 2},
-        "CROWN": {"Arceus": 1}
+        "DIAMOND1": 31,
+        "DIAMOND2": 26,
+        "DIAMOND3": 12,
+        "DIAMOND4": 5,
+        "STAR1": 6,
+        "STAR2": 2,
+        "CROWN": 1
     }
 }
-    

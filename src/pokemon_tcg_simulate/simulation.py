@@ -1,7 +1,8 @@
 import random
+from dataclasses import dataclass
 from itertools import cycle
 
-from pokemon_tcg_simulate.models import Collection, MissionCollection
+from pokemon_tcg_simulate.collection import Collection, MissionCollection
 
 
 # max pack points that can be held at a time
@@ -9,6 +10,13 @@ MAX_PACK_POINTS = 2_500
 
 # % prob of pulling a rare booster pack
 RARE_PROBABILITY = 0.050
+
+
+@dataclass
+class SimulationResult:
+    collected: dict[str, Collection]
+    opened: int = 0
+    all_common_at: int | None = None
 
 
 def rare_booster():
@@ -119,4 +127,4 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
         if completed_all(collected):
             break
 
-    return opened, all_common_at, collected
+    return SimulationResult(collected, opened, all_common_at)

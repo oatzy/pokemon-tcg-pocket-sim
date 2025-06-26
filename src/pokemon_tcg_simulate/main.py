@@ -2,7 +2,7 @@ import json
 from argparse import ArgumentParser
 from collections import Counter, defaultdict
 
-from pokemon_tcg_simulate.models import Expansion
+from pokemon_tcg_simulate.expansion import Expansion
 from pokemon_tcg_simulate.output import avg, percentiles, dump_histograms
 from pokemon_tcg_simulate.simulation import simulate
 
@@ -44,6 +44,9 @@ def main():
         with open(args.mission) as f:
             mission = json.load(f)
 
+    # --- Result containers ---
+
+    # TODO: wrap in a dataclass
     opened_hist = Counter()
     common_opened_hist = Counter()
     rarity_hist = {x.name: Counter() for x in expansion.rarities}
@@ -53,17 +56,17 @@ def main():
     # --- Simulation ---
 
     for _ in range(args.runs):
-        opened, all_common_at, collected = simulate(
+        result = simulate(
             expansion,
             initial_state=initial_state,
             mission=mission and mission["cards"],
             stop_at_all_common=args.stop_at_common,  # TODO: could be reimplemented as a mission
         )
 
-        opened_hist.update([opened])
-        common_opened_hist.update([all_common_at])
+        opened_hist.update([result.opened])
+        common_opened_hist.update([result.all_common_at])
 
-        for rarity, collection in collected.items():
+        for rarity, collection in result.collected.items():
             if collection.completed_at is not None:
                 rarity_hist[rarity].update([collection.completed_at])
             if collection.bought:
