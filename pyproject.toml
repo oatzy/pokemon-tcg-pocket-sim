@@ -1,0 +1,10 @@
+[project]
+name = "pokemon-tcg-pocket-sim"
+version = "0.2.0"
+description = "Pokemon TCG Pocket pull simulation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+pokemon-tcg-simulate = "pokemon_tcg_simulate.main:main"
