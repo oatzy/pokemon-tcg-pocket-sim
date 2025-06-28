@@ -8,3 +8,8 @@ dependencies = []
 
 [project.scripts]
 pokemon-tcg-simulate = "pokemon_tcg_simulate.main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]

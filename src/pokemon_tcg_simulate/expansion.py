@@ -28,57 +28,47 @@ class Rarity:
     rare_counts: dict[str, int] | None = None
 
     def __post_init__(self):
+        if isinstance(self.counts, int):
+            self.counts = {ANY: self.counts}
+
         self._any_count = self.counts.get(ANY, 0)
 
-        self._offsets = _offsets(self.counts)
-
-        if self.rare:
-            if self.rare_counts is None:
-                self.rare_counts = self.counts
-            self._rare_offsets = _offsets(self.rare_counts)
+        # this logic is for crown cards
+        # for normal boosters all crown cards appear in any variant
+        # but for rare boosters, each crown card is variant locked
+        if self.rare and self.rare_counts is None:
+            self.rare_counts = self.counts
 
     def iter_rare_cards(self, variant):
         if not self.rare:
             return
 
         any_count = self.rare_counts.get(ANY, 0)
-        yield from range(any_count)
+        yield from ((ANY, i) for i in range(any_count))
 
-        offset = any_count + self._rare_offsets[variant]
-        yield from (i + offset for i in range(self.rare_counts.get(variant, 0)))
+        if variant != ANY:
+            yield from ((variant, i) for i in range(self.rare_counts.get(variant, 0)))
 
     def iter_variant_cards(self, variant):
-        # TODO: need to change the approach
-        # so we can track when a variant is complete
-        if variant == ANY:
-            return range(self._any_count)
+        yield from ((ANY, i) for i in range(self._any_count))
 
-        offset = self._any_count + self._offsets[variant]
-        yield from (i + offset for i in range(self.counts.get(variant, 0)))
+        if variant != ANY:
+            yield from ((variant, i) for i in range(self.counts.get(variant, 0)))
 
     def count(self, variant=None):
+        if variant == ANY:
+            return self._any_count
+
         if variant is not None:
             return self._any_count + self.counts.get(variant, 0)
+
         return sum(self.counts.values())
 
     def pick(self, variant):
         p = random.randint(0, self.count(variant) - 1)
         if p >= self._any_count:
-            p += self._offsets[variant]
-        return p
-
-
-def _offsets(counts):
-    offsets = {}
-
-    offset = 0
-    for k, v in counts.items():
-        if k == ANY:
-            continue
-        offsets[k] = offset
-        offset += v
-
-    return offsets
+            return (variant, p - self._any_count)
+        return (ANY, p)
 
 
 @dataclass
@@ -108,11 +98,12 @@ class Expansion:
 
     @classmethod
     def from_json(cls, data):
+        # TODO: validation
         return Expansion(
             name=data["name"],
-            variants=data["variants"],
+            variants=data.get("variants", [ANY]),
             rarities=tuple(
-                Rarity(**i) for i in sorted(data["rarities"], key=lambda x: -x["cost"])
+                Rarity(**r) for r in sorted(data["rarities"], key=lambda x: -x["cost"])
             ),
         )
 

@@ -72,9 +72,6 @@ def completed_variant(collection, variant):
     return False
 
 
-# === Simulation ===
-
-
 def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=False):
     if mission:
         collected = {
