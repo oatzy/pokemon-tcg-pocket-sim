@@ -3,13 +3,12 @@
     "mission": "Collect all the cards",
     "pack_points": 250,
     "collected": {
-        "DIAMOND1": {"Charizard": 32},
-        "DIAMOND2": {"Charizard": 21},
-        "DIAMOND3": {"Charizard": 8},
-        "DIAMOND4": {"Charizard": 7},
-        "STAR1": {"Charizard": 5},
-        "STAR2": {"Charizard": 2},
-        "RAINBOW1": {"Charizard": 4}
+        "DIAMOND1": 32,
+        "DIAMOND2": 21,
+        "DIAMOND3": 8,
+        "DIAMOND4": 7,
+        "STAR1": 5,
+        "STAR2": 2,
+        "RAINBOW1": 4
     }
 }
-    

@@ -1,58 +1,105 @@
 {
     "name": "Triumphant Light",
-    "variants": ["Arceus"],
     "rarities": [
         {
             "name": "CROWN",
-            "cost": 2500, 
-            "offering_rate": [0, 0, 0, 0.040, 0.160], 
-            "counts": {"Arceus": 1},
+            "cost": 2500,
+            "offering_rate": [
+                0,
+                0,
+                0,
+                0.040,
+                0.160
+            ],
+            "counts": 1,
             "rare": true
         },
         {
             "name": "STAR3",
-            "cost": 1500, 
-            "offering_rate": [0, 0, 0, 0.222, 0.888], 
-            "counts": {"Arceus": 1}, 
+            "cost": 1500,
+            "offering_rate": [
+                0,
+                0,
+                0,
+                0.222,
+                0.888
+            ],
+            "counts": 1,
             "rare": true
         },
         {
             "name": "STAR2",
             "cost": 1250,
-            "offering_rate": [0, 0, 0, 0.500, 2.000], 
-            "counts": {"Arceus": 13}, 
+            "offering_rate": [
+                0,
+                0,
+                0,
+                0.500,
+                2.000
+            ],
+            "counts": 13,
             "rare": true
         },
         {
             "name": "STAR1",
             "cost": 400,
-            "offering_rate": [0, 0, 0, 2.572, 10.288], 
-            "counts": {"Arceus": 6}, 
+            "offering_rate": [
+                0,
+                0,
+                0,
+                2.572,
+                10.288
+            ],
+            "counts": 6,
             "rare": true
         },
         {
             "name": "DIAMOND4",
             "cost": 500,
-            "offering_rate": [0, 0, 0, 1.666, 6.664],
-            "counts": {"Arceus": 5}
+            "offering_rate": [
+                0,
+                0,
+                0,
+                1.666,
+                6.664
+            ],
+            "counts": 5
         },
         {
             "name": "DIAMOND3",
             "cost": 150,
-            "offering_rate": [0, 0, 0, 5.000, 20.000],
-            "counts": {"Arceus": 13} 
+            "offering_rate": [
+                0,
+                0,
+                0,
+                5.000,
+                20.000
+            ],
+            "counts": 13
         },
         {
             "name": "DIAMOND2",
-            "cost": 70, 
-            "offering_rate": [0, 0, 0, 90.000, 60.000],
-            "counts": {"Arceus": 26}
+            "cost": 70,
+            "offering_rate": [
+                0,
+                0,
+                0,
+                90.000,
+                60.000
+            ],
+            "counts": 26
         },
         {
             "name": "DIAMOND1",
             "cost": 35,
-            "offering_rate": [100, 100, 100, 0, 0],
-            "counts": {"Arceus": 31}
+            "offering_rate": [
+                100,
+                100,
+                100,
+                0,
+                0
+            ],
+            "counts": 31
         }
     ]
 }
