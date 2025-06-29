@@ -1,9 +1,9 @@
 import random
+from collections import deque
 from dataclasses import dataclass
-from itertools import cycle
 
 from pokemon_tcg_simulate.collection import Collection, MissionCollection
-
+from pokemon_tcg_simulate.expansion import ANY
 
 # max pack points that can be held at a time
 MAX_PACK_POINTS = 2_500
@@ -68,8 +68,7 @@ def completed_common(collection):
 
 
 def completed_variant(collection, variant):
-    # TODO: how?
-    return False
+    return not any(v.remaining(variant) for v in collection.values())
 
 
 def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=False):
@@ -92,9 +91,16 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
     opened = 0
     all_common_at = None
 
-    # repeatedly cycle though all variants
-    # TODO: stop opening variant when completed
-    for variant in cycle(expansion.variants):
+    # TODO: configurable variant generator (cf simulate_mission)
+    if expansion.variants != [ANY]:
+        variants = deque(v for v in expansion.variants if v != ANY)
+    else:
+        variants = deque([ANY])
+
+    while True:
+        variant = variants[0]
+        variants.rotate(-1)
+
         if rare_booster():
             pulled = expansion.open_rare(variant)
         else:
@@ -123,5 +129,8 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
 
         if completed_all(collected):
             break
+
+        if completed_variant(variant):
+            variants.remove(variant)
 
     return SimulationResult(collected, opened, all_common_at)

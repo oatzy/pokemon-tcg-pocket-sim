@@ -1,7 +1,43 @@
 from dataclasses import dataclass, field
-from itertools import islice
 
 from pokemon_tcg_simulate.expansion import Rarity, ANY
+
+
+@dataclass
+class Variant:
+    # how many cards are in the variant
+    size: int
+
+    # number of unique cards collected
+    unique: int = field(init=False, default=0)
+
+    # total cards collected, including duplicated
+    total: int = field(init=False, default=0)
+
+    # number collected of each card in the variant
+    collection: list[int] = field(init=False)
+
+    def __post_init__(self):
+        self.collection = [0 for _ in range(self.size)]
+
+    @property
+    def completed(self):
+        return self.size == self.unique
+
+    def __len__(self):
+        return self.unique
+
+    def __contains__(self, item):
+        return self.collection[item] > 0
+
+    def __getitem__(self, item):
+        return self.collection[item]
+
+    def add(self, item, count=1):
+        if self.collection[item] == 0:
+            self.unique += 1
+        self.collection[item] += count
+        self.total += 1
 
 
 @dataclass
@@ -10,17 +46,24 @@ class Collection:
     rarity: Rarity
 
     # cards that have been collected
-    collected: dict[str, set[int]] = field(default_factory=dict)
+    collected: dict[str, Variant] = field(init=False)
 
     # cards bought with pack points
-    bought: list[tuple[str, int]] = field(default_factory=list)
+    bought: list[tuple[str, int]] = field(init=False, default_factory=list)
 
     # how many packs were opened to complete the set
-    completed_at: int | None = None
+    completed_at: int | None = field(init=False, default=None)
+
+    def __post_init__(self):
+        counts = self.rarity.counts
+        if isinstance(counts, int):
+            counts = {ANY: counts}
+        collected = {v: Variant(c) for v, c in counts.items()}
+        self.collected = collected
 
     def add(self, item, opened):
         variant, card = item
-        self.collected.setdefault(variant, set()).add(item)
+        self.collected[variant].add(card)
 
         if self.completed_at is None and self.remaining() == 0:
             self.completed_at = opened
@@ -30,12 +73,18 @@ class Collection:
         self.bought.append(item)
 
     def count(self, variant=None):
+        any_count = len(self.collected.get(ANY, []))
+        if variant == ANY:
+            return any_count
         if variant:
-            return len(self.collected.get(ANY, 0)) + len(self.collected[variant])
-        return sum(len(v for v in self.collected.values()))
+            return any_count + len(self.collected[variant])
+        return sum(len(v) for v in self.collected.values())
 
     def iter_missing(self):
-        return (i for i in range(self.rarity.count()) if i not in self.collected)
+        for variant, count in self.rarity.counts.items():
+            yield from (
+                (variant, i) for i in range(count) if i not in self.collected[variant]
+            )
 
     def remaining(self, variant=None):
         return self.rarity.count(variant) - self.count(variant)
@@ -44,10 +93,16 @@ class Collection:
         return self.rarity.cost * self.remaining(variant)
 
     def load_initial_state(self, state):
+        if not isinstance(state, dict):
+            state = {ANY: state}
+
         for variant, count in state.items():
-            self.collected.update(
-                islice(self.rarity.iter_variant_cards(variant), count)
-            )
+            if isinstance(count, int):
+                for i in range(count):
+                    self.collected[variant].add(i)
+            else:
+                for i, num in enumerate(count):
+                    self.collected[variant].add(i, num)
 
         if self.remaining() == 0:
             self.completed_at = 0
@@ -58,15 +113,16 @@ class MissionCollection(Collection):
     mission: dict[str, int] | None = None
 
     def __post_init__(self):
-        self.goal = set()
         if not self.mission:
-            return
-
-        for variant, count in self.mission.items():
-            self.goal.update(islice(self.rarity.iter_variant_cards(variant), count))
+            raise Exception("no mission provided")
 
     def iter_missing(self, variant=None):
-        return (i for i in self.goal if i not in self.collected)
+        for variant, count in self.mission.items():
+            for i in range(count):
+                have = self.collected[variant][i]
+                need = self.mission[variant][i]
+                if need > have:
+                    yield (variant, need - have)
 
     def remaining(self, variant=None):
-        return len(list(self.iter_missing(variant)))
+        return sum(1 for _ in self.iter_missing(variant))
