@@ -77,13 +77,15 @@ class Collection:
         if variant == ANY:
             return any_count
         if variant:
-            return any_count + len(self.collected[variant])
+            return any_count + len(self.collected.get(variant, []))
         return sum(len(v) for v in self.collected.values())
 
     def iter_missing(self):
         for variant, count in self.rarity.counts.items():
             yield from (
-                (variant, i) for i in range(count) if i not in self.collected[variant]
+                (variant, i)
+                for i in range(count)
+                if i not in self.collected.get(variant, [])
             )
 
     def remaining(self, variant=None):
@@ -117,7 +119,14 @@ class MissionCollection(Collection):
             raise Exception("no mission provided")
 
     def iter_missing(self, variant=None):
-        for variant, count in self.mission.items():
+        if variant is not None:
+            mission = [(variant, self.mission.get(variant, 0))]
+            if variant != ANY and ANY in self.mission:
+                mission.append((ANY, self.mission[ANY]))
+        else:
+            mission = self.mission.items()
+
+        for variant, count in mission:
             for i in range(count):
                 have = self.collected[variant][i]
                 need = self.mission[variant][i]

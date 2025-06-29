@@ -130,7 +130,7 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
         if completed_all(collected):
             break
 
-        if completed_variant(variant):
+        if completed_variant(collected, variant):
             variants.remove(variant)
 
     return SimulationResult(collected, opened, all_common_at)
