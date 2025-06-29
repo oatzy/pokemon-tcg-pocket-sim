@@ -115,6 +115,10 @@ class TestCollection:
         assert c.collected["Charizard"].collection == [1, 1, 0, 0, 0]
         assert c.collected["Pikachu"].collection == [2, 1, 0, 0, 0]
 
+    def test_pick_and_add_crown(self):
+        # rare_count behaviour for crown cards causes problems
+        pass
+
 
 def diamond(counts):
     return Rarity("diamond", 70, (100, 100, 100, 0, 0), counts)

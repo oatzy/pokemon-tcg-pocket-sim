@@ -63,6 +63,11 @@ class Collection:
 
     def add(self, item, opened):
         variant, card = item
+        if variant not in self.collected and list(self.rarity.counts.keys()) == [ANY]:
+            # special case: crown cards can appear in any variant for regular boosters
+            # but only appear in one variant for rare boosters
+            variant = ANY  # TODO: is this sound?
+
         self.collected[variant].add(card)
 
         if self.completed_at is None and self.remaining() == 0:
