@@ -40,7 +40,7 @@ class Variant:
         self.total += 1
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Collection:
     # rarity of cards in collection
     rarity: Rarity
@@ -58,14 +58,16 @@ class Collection:
         counts = self.rarity.counts
         if isinstance(counts, int):
             counts = {ANY: counts}
-        collected = {v: Variant(c) for v, c in counts.items()}
-        self.collected = collected
+
+        self.collected = {v: Variant(c) for v, c in counts.items()}
 
     def add(self, item, opened):
         variant, card = item
+
         if variant not in self.collected and list(self.rarity.counts.keys()) == [ANY]:
             # special case: crown cards can appear in any variant for regular boosters
             # but only appear in one variant for rare boosters
+            card = list(self.rarity.rare_counts.keys()).index(variant)
             variant = ANY  # TODO: is this sound?
 
         self.collected[variant].add(card)
@@ -115,28 +117,29 @@ class Collection:
             self.completed_at = 0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class MissionCollection(Collection):
-    mission: dict[str, int] | None = None
+    mission: dict[str, int]
 
     def __post_init__(self):
-        if not self.mission:
-            raise Exception("no mission provided")
+        super().__post_init__()
+        for rarity, count in self.mission.items():
+            if isinstance(count, int):
+                self.mission[rarity] = [1 for _ in range(count)]
 
     def iter_missing(self, variant=None):
         if variant is not None:
-            mission = [(variant, self.mission.get(variant, 0))]
+            mission = [(variant, self.mission.get(variant, []))]
             if variant != ANY and ANY in self.mission:
                 mission.append((ANY, self.mission[ANY]))
         else:
             mission = self.mission.items()
 
         for variant, count in mission:
-            for i in range(count):
-                have = self.collected[variant][i]
-                need = self.mission[variant][i]
+            for inx, need in enumerate(count):
+                have = self.collected[variant][inx]
                 if need > have:
-                    yield (variant, need - have)
+                    yield from ((variant, inx) for _ in range(need - have))
 
     def remaining(self, variant=None):
         return sum(1 for _ in self.iter_missing(variant))

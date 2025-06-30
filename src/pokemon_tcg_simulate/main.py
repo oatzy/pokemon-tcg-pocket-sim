@@ -80,7 +80,8 @@ def main():
 
     print("\n# Average opened by rarity:")
     for rarity, hist in rarity_hist.items():
-        print(f"  - {rarity}: {avg(hist)}")
+        if hist:
+            print(f"  - {rarity}: {avg(hist)}")
 
     if not bought:
         print("\n# None were bought")

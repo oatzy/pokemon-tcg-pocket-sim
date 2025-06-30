@@ -74,12 +74,12 @@ def completed_variant(collection, variant):
 def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=False):
     if mission:
         collected = {
-            x.name: MissionCollection(x, mission=mission.get(x.name))
-            for x in expansion.rarities
-            if x.name in mission
+            r.name: MissionCollection(rarity=r, mission=mission.get(r.name))
+            for r in expansion.rarities
+            if r.name in mission
         }
     else:
-        collected = {x.name: Collection(x) for x in expansion.rarities}
+        collected = {r.name: Collection(rarity=r) for r in expansion.rarities}
 
     pack_points = 0
 
@@ -113,7 +113,7 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
             if rarity in collected:
                 collected[rarity].add(pull, opened)
 
-        if required_pack_points(collected) == pack_points:
+        if required_pack_points(collected) <= pack_points:
             buy_remaining(collected, pack_points, opened)
 
         if pack_points == MAX_PACK_POINTS and not completed_all(collected):
