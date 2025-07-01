@@ -31,19 +31,42 @@ Integer count `3` is equivalent to list `[1, 1, 1]`
 
 ### Possible extension
 
-For a mission where there are multiple ways of completing the goal
+For the Eevee Grove emblem secret mission, it is required to collect 100 cards made up of any of 6 cards.
 
-e.g. "collect 100 of one of three cards"
+To represent this, we might do something like
+
 ```
 {
     "cards": {
-        "DIAMOND1": [
-            [100, 0, 0],
-            [0, 100, 0],
-            [0, 0, 100]
-        ]
+        "$total": {
+            "cards": {
+                "DIAMOND1": 4,
+                "DIAMOND2": 2
+            },
+            "total": 100
+        }
     }
 }
-````
+```
 
-Possible shorthand `{"DIAMOND1": "FIRST(100, 3)"}`
+or
+
+```
+{
+    "cards": {
+        "DIAMOND1": 4,
+        "DIAMOND2": 2
+    }
+    "condition": {
+        "$total": 100
+    }
+}
+```
+
+The latter is simpler, but the former is more flexible, and potentially supports recursive conditions (if indeed such a thing is needed).
+
+This suggests a syntax for general mission 'functions' (plugins?).
+
+The standard behaviour would be equivalent to something like `"condition": {"$all": true}`
+
+Q: how to represent alternates - e.g. collect any eevee card (whether 1 diamond, 4 diamond (ex), 1 star, etc)

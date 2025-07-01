@@ -90,9 +90,7 @@ class Collection:
     def iter_missing(self):
         for variant, count in self.rarity.counts.items():
             yield from (
-                (variant, i)
-                for i in range(count)
-                if i not in self.collected.get(variant, [])
+                (variant, i) for i in range(count) if i not in self.collected[variant]
             )
 
     def remaining(self, variant=None):

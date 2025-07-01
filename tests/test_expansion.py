@@ -2,7 +2,12 @@ from pokemon_tcg_simulate.expansion import ANY, Rarity, Expansion
 
 
 def diamond(counts):
-    return Rarity("diamond", 70, (100, 100, 100, 0, 0), counts)
+    return Rarity(
+        name="diamond",
+        cost=70,
+        offering_rate=(100, 100, 100, 0, 0),
+        counts=counts,
+    )
 
 
 class TestRarity:
@@ -10,9 +15,15 @@ class TestRarity:
         r = diamond(5)
         assert r.counts == {ANY: 5}
 
+    def test_init_no_rare_count(self):
+        pass
+
     def test_iter_rare_cards_not_rare(self):
         r = diamond(5)
         assert list(r.iter_rare_cards(ANY)) == []
+
+    def iter_rare_cards(self):
+        pass
 
     def test_count_no_variants(self):
         r = diamond({ANY: 5})
@@ -38,12 +49,26 @@ class TestRarity:
     def test_pick_variant(self):
         r = diamond({ANY: 3, "Pikachu": 5, "Charizard": 7})
 
-        pick = r.pick("Pikachu")
-        variant, card = pick
+        for _ in range(10):
+            pick = r.pick("Pikachu")
+            variant, card = pick
 
-        assert variant in (ANY, "Pikachu")
-        assert 0 <= card < r.counts[variant]
+            assert variant in (ANY, "Pikachu")
+            assert 0 <= card < r.counts[variant]
 
 
 class TestExpansion:
-    pass
+    def test_init_cummulative_probabilities(self):
+        pass
+
+    def test_from_json_no_variants(self):
+        pass
+
+    def test_from_json_rarity_order(self):
+        pass
+
+    def test_open_rare(self):
+        pass
+
+    def test_open_regular(self):
+        pass

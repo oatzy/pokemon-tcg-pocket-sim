@@ -49,3 +49,5 @@ the collection should be `[50, 0]`, NOT `[0, 50]`
 
 Inverse collection - e.g. "I have everything except these cards"
 More convenient when you're down to the last few.
+
+e.g. replace `collected` with `missing` (or `need` ?)

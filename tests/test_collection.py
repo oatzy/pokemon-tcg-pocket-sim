@@ -78,7 +78,7 @@ class TestCollection:
     def test_load_state_no_variants(self, state):
         rarity = diamond(5)
 
-        c = Collection(rarity)
+        c = Collection(rarity=rarity)
         c.load_initial_state(state)
 
         assert list(c.collected.keys()) == [ANY]
@@ -88,7 +88,7 @@ class TestCollection:
     def test_load_state_no_variants_with_counts(self, state):
         rarity = diamond(5)
 
-        c = Collection(rarity)
+        c = Collection(rarity=rarity)
         c.load_initial_state(state)
 
         assert list(c.collected.keys()) == [ANY]
@@ -97,7 +97,7 @@ class TestCollection:
     def test_load_state_with_variants(self):
         rarity = diamond({"Charizard": 5, "Pikachu": 5})
 
-        c = Collection(rarity)
+        c = Collection(rarity=rarity)
         c.load_initial_state({"Charizard": 1, "Pikachu": 1})
 
         assert list(c.collected.keys()) == ["Charizard", "Pikachu"]
@@ -107,7 +107,7 @@ class TestCollection:
     def test_load_state_with_variant_counts(self):
         rarity = diamond({ANY: 5, "Charizard": 5, "Pikachu": 5})
 
-        c = Collection(rarity)
+        c = Collection(rarity=rarity)
         c.load_initial_state({ANY: 1, "Charizard": [1, 1], "Pikachu": [2, 1]})
 
         assert list(c.collected.keys()) == [ANY, "Charizard", "Pikachu"]
@@ -115,10 +115,86 @@ class TestCollection:
         assert c.collected["Charizard"].collection == [1, 1, 0, 0, 0]
         assert c.collected["Pikachu"].collection == [2, 1, 0, 0, 0]
 
-    def test_pick_and_add_crown(self):
+    def test_add(self):
+        pass
+
+    def test_add_crown(self):
         # rare_count behaviour for crown cards causes problems
+        pass
+
+    def test_add_completed(self):
+        pass
+
+    def test_buy(self):
+        pass
+
+    def test_count_all(self):
+        pass
+
+    def test_count_variant(self):
+        pass
+
+    def test_count_any(self):
+        pass
+
+    def test_count_with_duplicates(self):
+        pass
+
+    def test_iter_missing(self):
+        pass
+
+    def test_remaining_all(self):
+        pass  # also check cost
+
+    def test_remaining_variant(self):
+        pass
+
+    def test_remaining_any(self):
+        pass
+
+
+class TestMissionCollection:
+    def test_post_init_integer_count(self):
+        pass
+
+    def test_post_init_list_counts(self):
+        pass
+
+    def test_count_all(self):
+        pass
+
+    def test_count_variant(self):
+        pass
+
+    def test_count_any(self):
+        pass
+
+    def test_count_with_duplicates(self):
+        pass
+
+    def test_iter_missing_all(self):
+        pass
+
+    def test_iter_missing_variant(self):
+        pass
+
+    def test_iter_missing_any(self):
+        pass
+
+    def test_remaining_all(self):
+        pass  # also check cost
+
+    def test_remaining_variant(self):
+        pass
+
+    def test_remaining_any(self):
         pass
 
 
 def diamond(counts):
-    return Rarity("diamond", 70, (100, 100, 100, 0, 0), counts)
+    return Rarity(
+        name="diamond",
+        cost=70,
+        offering_rate=(100, 100, 100, 0, 0),
+        counts=counts,
+    )
