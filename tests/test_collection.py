@@ -1,6 +1,6 @@
 import pytest
 
-from pokemon_tcg_simulate.collection import Collection, Variant
+from pokemon_tcg_simulate.collection import Collection, Variant, MissionCollection
 from pokemon_tcg_simulate.expansion import ANY, Rarity
 
 
@@ -116,79 +116,195 @@ class TestCollection:
         assert c.collected["Pikachu"].collection == [2, 1, 0, 0, 0]
 
     def test_add(self):
-        pass
+        rarity = diamond(3)
+        c = Collection(rarity=rarity)
+        c.add((ANY, 1), opened=1)
+
+        assert c.collected[ANY].collection == [0, 1, 0]
+        assert c.collected[ANY].unique == 1
+        assert c.collected[ANY].total == 1
 
     def test_add_crown(self):
-        # rare_count behaviour for crown cards causes problems
-        pass
+        # Simulate crown card logic: only ANY in rarity.counts, but add with a variant
+        crown = Rarity(
+            name="crown",
+            cost=2500,
+            offering_rate=(100, 100, 100, 100, 100),
+            counts={ANY: 2},
+            rare_counts={"Charizard": 1, "Pikachu": 1},
+        )
+
+        c = Collection(rarity=crown)
+        c.add(("Pikachu", 0), opened=1)
+        # Should have added to ANY
+        assert c.collected[ANY].collection == [0, 1]
 
     def test_add_completed(self):
-        pass
+        rarity = diamond(2)
+        c = Collection(rarity=rarity)
+        c.add((ANY, 0), opened=1)
+        assert c.completed_at is None
+        c.add((ANY, 1), opened=2)
+        assert c.completed_at == 2
 
     def test_buy(self):
-        pass
+        rarity = diamond(2)
+        c = Collection(rarity=rarity)
+        c.buy((ANY, 0), opened=1)
+        assert c.collected[ANY].collection == [1, 0]
+        assert c.bought == [(ANY, 0)]
 
     def test_count_all(self):
-        pass
+        rarity = diamond({ANY: 2, "Charizard": 2, "Pikachu": 2})
+        c = Collection(rarity=rarity)
+        c.add(("Charizard", 0), opened=1)
+        c.add(("Pikachu", 1), opened=2)
+        c.add((ANY, 0), opened=3)
+        assert c.count() == 3
 
     def test_count_variant(self):
-        pass
+        rarity = diamond({ANY: 2, "A": 2, "B": 2})
+        c = Collection(rarity=rarity)
+
+        c.add(("A", 0), opened=1)
+        c.add(("B", 1), opened=2)
+        assert c.count("A") == 1
+
+        c.add((ANY, 0), opened=3)
+        assert c.count("A") == 2
+        assert c.count("B") == 2
 
     def test_count_any(self):
-        pass
+        rarity = diamond({ANY: 2})
+        c = Collection(rarity=rarity)
+        c.add((ANY, 0), opened=1)
+        c.add((ANY, 1), opened=2)
+        assert c.count(ANY) == 2
 
     def test_count_with_duplicates(self):
-        pass
+        rarity = diamond(3)
+        c = Collection(rarity=rarity)
+        c.add((ANY, 0), opened=1)
+        c.add((ANY, 0), opened=2)
+        assert c.count() == 1
 
     def test_iter_missing(self):
-        pass
+        rarity = diamond(3)
+        c = Collection(rarity=rarity)
+        c.add((ANY, 0), opened=1)
+        missing = list(c.iter_missing())
+        assert missing == [(ANY, 1), (ANY, 2)]
 
     def test_remaining_all(self):
-        pass  # also check cost
+        rarity = diamond(3)
+        c = Collection(rarity=rarity)
+        c.add((ANY, 0), opened=1)
+        assert c.remaining() == 2
+        assert c.remaining_cost() == 2 * 70
 
     def test_remaining_variant(self):
-        pass
-
-    def test_remaining_any(self):
-        pass
+        rarity = diamond({"A": 2, "B": 2})
+        c = Collection(rarity=rarity)
+        c.add(("A", 0), opened=1)
+        assert c.remaining("A") == 1
+        assert c.remaining("B") == 2
 
 
 class TestMissionCollection:
     def test_post_init_integer_count(self):
-        pass
+        rarity = diamond(3)
+        mission = {ANY: 2}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        assert mc.mission[ANY] == [1, 1]
 
     def test_post_init_list_counts(self):
-        pass
+        rarity = diamond(3)
+        mission = {ANY: [2, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        assert mc.mission[ANY] == [2, 1]
 
     def test_count_all(self):
-        pass
+        rarity = diamond(3)
+        mission = {ANY: [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected[ANY].add(0)
+        mc.collected[ANY].add(2)
+        assert mc.count() == 2
 
     def test_count_variant(self):
-        pass
+        rarity = diamond({ANY: 2, "A": 2, "B": 2})
+        mission = {"A": [1, 1], "B": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected["A"].add(0)
+        assert mc.count("A") == 1
+        assert mc.count("B") == 0
+
+        mc.collected[ANY].add(0)
+        assert mc.count("A") == 2
+        assert mc.count("B") == 1
 
     def test_count_any(self):
-        pass
+        rarity = diamond({ANY: 2, "A": 2})
+        mission = {ANY: [1, 1], "A": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected[ANY].add(0)
+        assert mc.count(ANY) == 1
 
     def test_count_with_duplicates(self):
-        pass
+        rarity = diamond(2)
+        mission = {ANY: [2, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected[ANY].add(0)
+        mc.collected[ANY].add(0)
+        assert mc.count() == 1
 
     def test_iter_missing_all(self):
-        pass
+        rarity = diamond({"A": 2, "B": 2})
+        mission = {"A": [1, 1], "B": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected["A"].add(1)
+        missing = list(mc.iter_missing())
+        assert missing == [("A", 0), ("B", 0), ("B", 1)]
 
     def test_iter_missing_variant(self):
-        pass
+        rarity = diamond({"A": 2, "B": 2})
+        mission = {"A": [1, 1], "B": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected["A"].add(0)
+        missing = list(mc.iter_missing("A"))
+        assert missing == [("A", 1)]
 
     def test_iter_missing_any(self):
-        pass
+        rarity = diamond(3)
+        mission = {ANY: [1, 2, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected[ANY].add(1)
+        missing = list(mc.iter_missing())
+        assert missing == [(ANY, 0), (ANY, 1), (ANY, 2)]
 
     def test_remaining_all(self):
-        pass  # also check cost
+        rarity = diamond({ANY: 2, "A": 2, "B": 2})
+        mission = {ANY: [1], "A": [1, 2]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected["A"].add(1)
+        mc.collected["B"].add(0)  # doesn't contribute to mission
+        assert mc.remaining() == 3
+        assert mc.remaining_cost() == 3 * 70
 
     def test_remaining_variant(self):
-        pass
+        rarity = diamond({"A": 2, "B": 2})
+        mission = {"A": [1, 1], "B": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected["A"].add(0)
+        assert mc.remaining("A") == 1
+        assert mc.remaining("B") == 2
 
     def test_remaining_any(self):
-        pass
+        rarity = diamond({ANY: 2, "A": 2})
+        mission = {ANY: [1, 1], "A": [1, 1]}
+        mc = MissionCollection(rarity=rarity, mission=mission)
+        mc.collected[ANY].add(0)
+        assert mc.remaining(ANY) == 1
 
 
 def diamond(counts):
