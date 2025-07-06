@@ -23,23 +23,24 @@ def rare_booster():
     return 100 * random.random() <= RARE_PROBABILITY
 
 
-def _pick_from_remaining(collection, key):
+def pick_from_remaining(collection, key):
     for rarity, collected in sorted(collection.items(), key=key):
         if collected.remaining() > 0:
             return rarity, next(collected.iter_missing())
 
 
-def pick_most_expensive(collection):
-    cost = lambda x: x[1].rarity.cost
-    return _pick_from_remaining(collection, cost)
+def most_expensive(collection_item):
+    return -collection_item[1].rarity.cost
 
 
-def pick_rarest(collection, variant):
+def rarest(variant):
     # the individual card you're least likely to pull
-    prob_per_card = lambda x: max(x[1].rarity.offering_rate) / x[1].rarity.count(
-        variant
-    )
-    return _pick_from_remaining(collection, prob_per_card)
+    def inner(collection_item):
+        return max(collection_item[1].rarity.offering_rate) / collection_item[
+            1
+        ].rarity.count(variant)
+
+    return inner
 
 
 def buy_remaining(collection, pack_points, opened):
@@ -51,6 +52,7 @@ def buy_remaining(collection, pack_points, opened):
 
             collected.buy(missing, opened)
             pack_points -= collected.rarity.cost
+    return pack_points
 
 
 def required_pack_points(collection):
@@ -114,11 +116,10 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
                 collected[rarity].add(pull, opened)
 
         if required_pack_points(collected) <= pack_points:
-            buy_remaining(collected, pack_points, opened)
+            pack_points = buy_remaining(collected, pack_points, opened)
 
         if pack_points == MAX_PACK_POINTS and not completed_all(collected):
-            # rarity, picked = pick_most_expensive(collected)
-            rarity, picked = pick_rarest(collected, variant)
+            rarity, picked = pick_from_remaining(collected, rarest(variant))
             collected[rarity].buy(picked, opened)
             pack_points -= collected[rarity].rarity.cost
 
