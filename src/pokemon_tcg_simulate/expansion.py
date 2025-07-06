@@ -1,6 +1,5 @@
 import random
 
-# from bisect import bisect_right
 from dataclasses import dataclass
 from itertools import accumulate, chain
 
@@ -75,17 +74,11 @@ class Expansion:
 
     def __post_init__(self):
         # pre-calculate cumulative probability by position
-        # TODO: needs to take into account variant
         self._cum_prob = [
             list(accumulate(x.offering_rate[p] for x in self.rarities))
             for p in range(5)
         ]
 
-        # self._rare_cards = {
-        #     variant: list(accumulate(r.count(variant)) for r in self.rarities)
-        #     for variant in self.variants
-        # }
-        # pre-generate a list of all rare cards for rare booster picks
         self._rare_cards = {
             v: tuple(
                 chain.from_iterable(
@@ -109,9 +102,6 @@ class Expansion:
         )
 
     def open_rare(self, variant):
-        # n = random.randint(0, self._rare_cards[variant][-1] - 1)
-        # inx = bisect_right(self._rare_cards[variant], n)
-        # (self.rarities[inx].name, n if inx == 0 else n - self._rare_cards[inx - 1])
         return random.choices(self._rare_cards[variant], k=5)
 
     def _pick(self, pos, variant):
