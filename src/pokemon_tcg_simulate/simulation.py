@@ -1,8 +1,7 @@
 import random
 from collections import deque
-from dataclasses import dataclass
 
-from pokemon_tcg_simulate.collection import Collection, MissionCollection
+from pokemon_tcg_simulate.collection import Collection
 from pokemon_tcg_simulate.expansion import ANY
 
 # max pack points that can be held at a time
@@ -10,13 +9,6 @@ MAX_PACK_POINTS = 2_500
 
 # % prob of pulling a rare booster pack
 RARE_PROBABILITY = 0.050
-
-
-@dataclass
-class SimulationResult:
-    collected: dict[str, Collection]
-    opened: int = 0
-    all_common_at: int | None = None
 
 
 def rare_booster():
@@ -73,58 +65,75 @@ def completed_variant(collection, variant):
     return not any(v.remaining(variant) for v in collection.values())
 
 
-def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=False):
-    if mission:
-        collected = {
-            r.name: MissionCollection(rarity=r, mission=mission.get(r.name))
-            for r in expansion.rarities
-            if r.name in mission
-        }
-    else:
-        collected = {r.name: Collection(rarity=r) for r in expansion.rarities}
+class VariantIterator:
+    def __init__(self, variants):
+        if variants == [ANY]:
+            self.variants = deque([ANY])
+        else:
+            self.variants = deque(v for v in variants if v != ANY)
 
-    pack_points = 0
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.variants.rotate(-1)
+        return self.variants[0]
+
+    def remove(self, variant):
+        if variant in self.variants:
+            self.variants.remove(variant)
+
+
+def simulate(
+    expansion,
+    initial_state=None,
+    mission=None,
+    stop_at_all_common=False,
+):
+    """
+    Simulate opening packs from an expansion until all cards are collected.
+
+    :param expansion: The Expansion object containing variants and rarities.
+    :param initial_state: Optional initial state of the collection.
+    :param mission: Optional mission to complete.
+    :param stop_at_all_common: If True, stop when all common cards are collected.
+    :return: A Collection object with the final state.
+    """
+    collection = Collection.from_json(expansion, mission=mission)
 
     if initial_state:
-        pack_points = initial_state.get("pack_points", 0)
-        for rarity, counts in initial_state["collected"].items():
-            collected[rarity].load_initial_state(counts)
+        collection.load_initial_state(initial_state)
 
-    opened = 0
-    all_common_at = None
+    return _simulate(expansion, collection, stop_at_all_common)
+
+
+def _simulate(expansion, collection: Collection, stop_at_all_common=False):
+    collected = collection.collected
 
     # TODO: configurable variant generator (cf simulate_mission)
-    if expansion.variants != [ANY]:
-        variants = deque(v for v in expansion.variants if v != ANY)
-    else:
-        variants = deque([ANY])
-
-    while True:
-        variant = variants[0]
-        variants.rotate(-1)
-
+    variants = VariantIterator(expansion.variants)
+    for variant in variants:
         if rare_booster():
             pulled = expansion.open_rare(variant)
         else:
             pulled = expansion.open_regular(variant)
 
-        opened += 1
-        pack_points += 5
+        collection.opened += 1
+        collection.pack_points += 5
 
-        for rarity, pull in pulled:
-            if rarity in collected:
-                collected[rarity].add(pull, opened)
+        collection.add(pulled)
 
-        if required_pack_points(collected) <= pack_points:
-            pack_points = buy_remaining(collected, pack_points, opened)
+        if required_pack_points(collected) <= collection.pack_points:
+            collection.pack_points = buy_remaining(
+                collected, collection.pack_points, collection.opened
+            )
 
-        if pack_points == MAX_PACK_POINTS and not completed_all(collected):
-            rarity, picked = pick_from_remaining(collected, rarest(variant))
-            collected[rarity].buy(picked, opened)
-            pack_points -= collected[rarity].rarity.cost
+        if collection.pack_points == MAX_PACK_POINTS and not completed_all(collected):
+            picked = pick_from_remaining(collected, rarest(variant))
+            collection.buy(picked)
 
-        if all_common_at is None and completed_common(collected):
-            all_common_at = opened
+        if collection.all_common_at is None and completed_common(collected):
+            collection.all_common_at = collection.opened
             if stop_at_all_common:
                 break
 
@@ -134,4 +143,4 @@ def simulate(expansion, initial_state=None, mission=None, stop_at_all_common=Fal
         if completed_variant(collected, variant):
             variants.remove(variant)
 
-    return SimulationResult(collected, opened, all_common_at)
+    return collection

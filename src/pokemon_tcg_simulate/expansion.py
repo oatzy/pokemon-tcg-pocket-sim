@@ -1,8 +1,6 @@
 import random
-
 from dataclasses import dataclass
 from itertools import accumulate, chain
-
 
 ANY = "_any_"
 

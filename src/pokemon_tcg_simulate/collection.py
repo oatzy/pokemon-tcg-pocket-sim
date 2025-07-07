@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from pokemon_tcg_simulate.expansion import Rarity, ANY
+from pokemon_tcg_simulate.expansion import ANY, Rarity
 
 
 @dataclass
@@ -41,7 +41,7 @@ class Variant:
 
 
 @dataclass(kw_only=True)
-class Collection:
+class RarityCollection:
     # rarity of cards in collection
     rarity: Rarity
 
@@ -61,7 +61,7 @@ class Collection:
 
         self.collected = {v: Variant(c) for v, c in counts.items()}
 
-    def add(self, item, opened):
+    def add(self, item: tuple[str, int], opened: int):
         variant, card = item
 
         if variant not in self.collected and list(self.rarity.counts.keys()) == [ANY]:
@@ -75,11 +75,11 @@ class Collection:
         if self.completed_at is None and self.remaining() == 0:
             self.completed_at = opened
 
-    def buy(self, item, opened):
+    def buy(self, item: tuple[str, int], opened: int):
         self.add(item, opened)
         self.bought.append(item)
 
-    def count(self, variant=None):
+    def count(self, variant: str | None = None):
         any_count = len(self.collected.get(ANY, []))
         if variant == ANY:
             return any_count
@@ -93,10 +93,10 @@ class Collection:
                 (variant, i) for i in range(count) if i not in self.collected[variant]
             )
 
-    def remaining(self, variant=None):
+    def remaining(self, variant: str | None = None):
         return self.rarity.count(variant) - self.count(variant)
 
-    def remaining_cost(self, variant=None):
+    def remaining_cost(self, variant: str | None = None):
         return self.rarity.cost * self.remaining(variant)
 
     def load_initial_state(self, state):
@@ -116,14 +116,18 @@ class Collection:
 
 
 @dataclass(kw_only=True)
-class MissionCollection(Collection):
-    mission: dict[str, int]
+class MissionRarityCollection(RarityCollection):
+    mission: dict | list | int
 
     def __post_init__(self):
         super().__post_init__()
-        for rarity, count in self.mission.items():
+
+        if isinstance(self.mission, (int, list)):
+            self.mission = {ANY: self.mission}
+
+        for variant, count in self.mission.items():
             if isinstance(count, int):
-                self.mission[rarity] = [1 for _ in range(count)]
+                self.mission[variant] = [1 for _ in range(count)]
 
     def iter_missing(self, variant=None):
         if variant is not None:
@@ -141,3 +145,46 @@ class MissionCollection(Collection):
 
     def remaining(self, variant=None):
         return sum(1 for _ in self.iter_missing(variant))
+
+
+@dataclass(kw_only=True)
+class Collection:
+    # cards collected by rarity
+    collected: dict[str, RarityCollection]
+
+    # how many packs were opened
+    opened: int = 0
+
+    # how many pack points were collected
+    pack_points: int = 0
+
+    # how many packs were opened to collect all common cards
+    all_common_at: int | None = None
+
+    def add(self, pulled: list[tuple[str, tuple[str, int]]]):
+        for rarity, pull in pulled:
+            if rarity in self.collected:
+                self.collected[rarity].add(pull, self.opened)
+
+    def buy(self, picked: tuple[str, tuple[str, int]]):
+        rarity, card = picked
+        self.collected[rarity].buy(card, self.opened)
+        self.pack_points -= self.collected[rarity].rarity.cost
+
+    def load_initial_state(self, initial_state):
+        self.pack_points = initial_state.get("pack_points", 0)
+        for rarity, counts in initial_state["collected"].items():
+            self.collected[rarity].load_initial_state(counts)
+
+    @classmethod
+    def from_json(cls, expansion, mission=None):
+        if mission:
+            collected = {
+                r.name: MissionRarityCollection(rarity=r, mission=mission.get(r.name))
+                for r in expansion.rarities
+                if r.name in mission
+            }
+        else:
+            collected = {r.name: RarityCollection(rarity=r) for r in expansion.rarities}
+
+        return cls(collected=collected)

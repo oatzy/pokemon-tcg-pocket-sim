@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from collections import Counter, defaultdict
 
 from pokemon_tcg_simulate.expansion import Expansion
-from pokemon_tcg_simulate.output import avg, percentiles, dump_histograms
+from pokemon_tcg_simulate.output import avg, dump_histograms, percentiles
 from pokemon_tcg_simulate.simulation import simulate
 
 

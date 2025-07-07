@@ -1,4 +1,4 @@
-from pokemon_tcg_simulate.expansion import ANY, Rarity, Expansion
+from pokemon_tcg_simulate.expansion import ANY, Expansion, Rarity
 
 
 def diamond(counts):

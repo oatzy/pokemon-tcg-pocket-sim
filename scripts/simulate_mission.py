@@ -5,10 +5,10 @@ Focused specifically on the Champion of Sinnoh secret mission.
 """
 
 import random
-from collections import defaultdict, deque, Counter
+from collections import Counter, defaultdict, deque
 from dataclasses import dataclass
-from itertools import chain
 from functools import lru_cache, partial
+from itertools import chain
 
 
 @dataclass
