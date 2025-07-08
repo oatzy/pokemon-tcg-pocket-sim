@@ -1,4 +1,4 @@
-from pokemon_tcg_simulate.expansion import ANY, Expansion, Rarity
+from pokemon_tcg_simulate.expansion import ANY, Expansion, Rarity, create_common_mission
 
 
 def diamond(counts):
@@ -212,3 +212,25 @@ class TestExpansion:
             assert item[0] in ("gold", "diamond")
             assert item[1][0] == ANY
             assert item[1][1] in range(5)
+
+
+def test_create_common_mission():
+    r1 = Rarity(
+        name="diamond",
+        cost=70,
+        offering_rate=(100, 100, 100, 0, 0),
+        counts={ANY: 5},
+    )
+    r2 = Rarity(
+        name="gold",
+        rare=True,
+        cost=50,
+        offering_rate=(0, 0, 0, 100, 100),
+        counts={ANY: 2},
+    )
+    exp = Expansion(name="Test", variants=[ANY], rarities=(r1, r2))
+    mission = create_common_mission(exp)
+
+    assert mission["mission"] == "Collect all common cards"
+    assert mission["expansion"] == "Test"
+    assert mission["cards"] == {"diamond": {ANY: 5}}

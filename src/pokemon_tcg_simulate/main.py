@@ -4,12 +4,12 @@ from argparse import ArgumentParser
 from pokemon_tcg_simulate.collection import Collection
 from pokemon_tcg_simulate.expansion import Expansion, create_common_mission
 from pokemon_tcg_simulate.output import (
-    OpenedStatistics,
     BoughtStatistics,
+    OpenedStatistics,
     report_bought_averages,
     report_opened_averages,
-    report_opened_percentiles,
     report_opened_histograms,
+    report_opened_percentiles,
 )
 from pokemon_tcg_simulate.simulation import simulate
 
@@ -40,8 +40,6 @@ def main():
     parser.add_argument("-o", "--output-histograms", help="path to dump histograms to")
 
     args = parser.parse_args()
-
-    # todo: no-buy, card stats (dupes, missing) + max opened
 
     # --- Setup ---
 
