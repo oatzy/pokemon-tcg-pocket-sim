@@ -1,8 +1,16 @@
 import json
 from argparse import ArgumentParser
 
-from pokemon_tcg_simulate.expansion import Expansion
-from pokemon_tcg_simulate.output import ResultReporter, dump_histograms
+from pokemon_tcg_simulate.collection import Collection
+from pokemon_tcg_simulate.expansion import Expansion, create_common_mission
+from pokemon_tcg_simulate.output import (
+    OpenedStatistics,
+    BoughtStatistics,
+    report_bought_averages,
+    report_opened_averages,
+    report_opened_percentiles,
+    report_opened_histograms,
+)
 from pokemon_tcg_simulate.simulation import simulate
 
 
@@ -10,16 +18,21 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("expansion_json", help="path to an expansion data json")
     parser.add_argument("-i", "--initial-state", help="path to initial state json")
-    parser.add_argument("-m", "--mission", help="path to mission json")
-    parser.add_argument(
-        "-r", "--runs", default=100, type=int, help="number of simulations to run"
-    )
-    # TODO: make stop-at-common mutually exclusive with mission
-    parser.add_argument(
+
+    mission_group = parser.add_mutually_exclusive_group()
+    mission_group.add_argument("-m", "--mission", help="path to mission json")
+    mission_group.add_argument(
         "-c",
         "--stop-at-common",
         action="store_true",
         help="stop simulation when all common are collected",
+    )
+
+    parser.add_argument(
+        "-r", "--runs", default=100, type=int, help="number of simulations to run"
+    )
+    parser.add_argument(
+        "--no-buy", action="store_false", dest="buy", help="do not buy cards"
     )
     parser.add_argument(
         "-p", "--percentiles", action="store_true", help="print percentiles"
@@ -27,6 +40,8 @@ def main():
     parser.add_argument("-o", "--output-histograms", help="path to dump histograms to")
 
     args = parser.parse_args()
+
+    # todo: no-buy, card stats (dupes, missing) + max opened
 
     # --- Setup ---
 
@@ -44,36 +59,45 @@ def main():
         with open(args.mission) as f:
             mission = json.load(f)
 
+    if args.stop_at_common:
+        mission = create_common_mission(expansion)
+
+    mission = mission and mission["cards"]
+
     # --- Simulation ---
 
-    results_reporter = ResultReporter(
-        runs=args.runs,
-        percentiles=args.percentiles,
-    )
+    statistics = OpenedStatistics()
+    bought = BoughtStatistics()
 
     for _ in range(args.runs):
+        # Create a new collection for each run
+        # as collection is mutated during simulation
+        collection = Collection.from_json(expansion, mission=mission)
+
+        if initial_state:
+            collection.load_initial_state(initial_state)
+
         result = simulate(
             expansion,
-            initial_state=initial_state,
-            mission=mission and mission["cards"],
-            stop_at_all_common=args.stop_at_common,  # TODO: could be reimplemented as a mission
+            collection,
+            buy_cards=args.buy,
         )
 
-        results_reporter.add(result)
+        statistics.add(result)
+        bought.add(result)
 
     # --- Results ---
 
-    results_reporter.report()
+    report_opened_averages(statistics)
+
+    report_bought_averages(bought)
+
+    if args.percentiles:
+        report_opened_percentiles(statistics)
 
     if args.output_histograms:
-        # TODO: leaky abstraction
-        histograms = {
-            "ALL": results_reporter.opened_hist,
-            "COMMON": results_reporter.common_opened_hist,
-            **results_reporter.rarity_hist,
-        }
         with open(args.output_histograms, "w") as f:
-            dump_histograms(histograms, file=f)
+            report_opened_histograms(statistics, file=f)
 
 
 if __name__ == "__main__":

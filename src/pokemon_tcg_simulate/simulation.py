@@ -77,37 +77,15 @@ class VariantIterator:
 
     def __next__(self):
         self.variants.rotate(-1)
-        return self.variants[0]
+        return self.variants[-1]
 
     def remove(self, variant):
         if variant in self.variants:
             self.variants.remove(variant)
 
 
-def simulate(
-    expansion,
-    initial_state=None,
-    mission=None,
-    stop_at_all_common=False,
-):
-    """
-    Simulate opening packs from an expansion until all cards are collected.
-
-    :param expansion: The Expansion object containing variants and rarities.
-    :param initial_state: Optional initial state of the collection.
-    :param mission: Optional mission to complete.
-    :param stop_at_all_common: If True, stop when all common cards are collected.
-    :return: A Collection object with the final state.
-    """
-    collection = Collection.from_json(expansion, mission=mission)
-
-    if initial_state:
-        collection.load_initial_state(initial_state)
-
-    return _simulate(expansion, collection, stop_at_all_common)
-
-
-def _simulate(expansion, collection: Collection, stop_at_all_common=False):
+def simulate(expansion, collection: Collection, *, buy_cards=True):
+    # NOTE: mutates the collection object
     collected = collection.collected
 
     # TODO: configurable variant generator (cf simulate_mission)
@@ -123,19 +101,20 @@ def _simulate(expansion, collection: Collection, stop_at_all_common=False):
 
         collection.add(pulled)
 
-        if required_pack_points(collected) <= collection.pack_points:
-            collection.pack_points = buy_remaining(
-                collected, collection.pack_points, collection.opened
-            )
+        if buy_cards:
+            if required_pack_points(collected) <= collection.pack_points:
+                collection.pack_points = buy_remaining(
+                    collected, collection.pack_points, collection.opened
+                )
 
-        if collection.pack_points == MAX_PACK_POINTS and not completed_all(collected):
-            picked = pick_from_remaining(collected, rarest(variant))
-            collection.buy(picked)
+            if collection.pack_points == MAX_PACK_POINTS and not completed_all(
+                collected
+            ):
+                picked = pick_from_remaining(collected, rarest(variant))
+                collection.buy(picked)
 
         if collection.all_common_at is None and completed_common(collected):
             collection.all_common_at = collection.opened
-            if stop_at_all_common:
-                break
 
         if completed_all(collected):
             break

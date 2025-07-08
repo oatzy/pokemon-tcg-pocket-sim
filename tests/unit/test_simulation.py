@@ -1,3 +1,5 @@
+from itertools import islice
+
 import pytest
 
 from pokemon_tcg_simulate import simulation
@@ -115,3 +117,25 @@ class TestBuy:
         collection = {"common": c1}
         with pytest.raises(RuntimeError):
             simulation.buy_remaining(collection, pack_points=5, opened=5)
+
+
+class TestVariantIterator:
+    def test_variant_iterator(self):
+        variants = ["A", "B", "C"]
+        iterator = simulation.VariantIterator(variants)
+        assert list(islice(iterator, 3)) == ["A", "B", "C"]
+
+    def test_variant_iterator_rotation(self):
+        variants = ["A", "B", "C"]
+        iterator = simulation.VariantIterator(variants)
+        assert next(iterator) == "A"
+        assert next(iterator) == "B"
+        assert next(iterator) == "C"
+        assert next(iterator) == "A"
+
+    def test_variant_iterator_removal(self):
+        variants = ["A", "B", "C"]
+        iterator = simulation.VariantIterator(variants)
+        iterator.remove("B")
+        assert list(islice(iterator, 2)) == ["A", "C"]
+        assert next(iterator) == "A"
