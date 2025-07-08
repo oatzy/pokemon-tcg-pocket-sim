@@ -36,7 +36,7 @@ def rarest(variant):
 
 
 def buy_remaining(collection, pack_points, opened):
-    for rarity, collected in collection.items():
+    for collected in collection.values():
         for missing in collected.iter_missing():
             if pack_points < collected.rarity.cost:
                 # likely a programming error

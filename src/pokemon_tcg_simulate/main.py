@@ -1,9 +1,8 @@
 import json
 from argparse import ArgumentParser
-from collections import Counter, defaultdict
 
 from pokemon_tcg_simulate.expansion import Expansion
-from pokemon_tcg_simulate.output import avg, dump_histograms, percentiles
+from pokemon_tcg_simulate.output import ResultReporter, dump_histograms
 from pokemon_tcg_simulate.simulation import simulate
 
 
@@ -15,6 +14,7 @@ def main():
     parser.add_argument(
         "-r", "--runs", default=100, type=int, help="number of simulations to run"
     )
+    # TODO: make stop-at-common mutually exclusive with mission
     parser.add_argument(
         "-c",
         "--stop-at-common",
@@ -44,16 +44,12 @@ def main():
         with open(args.mission) as f:
             mission = json.load(f)
 
-    # --- Result containers ---
-
-    # TODO: wrap in a dataclass
-    opened_hist = Counter()
-    common_opened_hist = Counter()
-    rarity_hist = {x.name: Counter() for x in expansion.rarities}
-
-    bought = defaultdict(int)
-
     # --- Simulation ---
+
+    results_reporter = ResultReporter(
+        runs=args.runs,
+        percentiles=args.percentiles,
+    )
 
     for _ in range(args.runs):
         result = simulate(
@@ -63,46 +59,19 @@ def main():
             stop_at_all_common=args.stop_at_common,  # TODO: could be reimplemented as a mission
         )
 
-        opened_hist.update([result.opened])
-        common_opened_hist.update([result.all_common_at])
-
-        for rarity, collection in result.collected.items():
-            if collection.completed_at is not None:
-                rarity_hist[rarity].update([collection.completed_at])
-            if collection.bought:
-                bought[rarity] += len(collection.bought)
+        results_reporter.add(result)
 
     # --- Results ---
-    # TODO: move to output.py
 
-    print(f"# Average packs opened: {avg(opened_hist)}")
-    print(f"# Average opened for all common: {avg(common_opened_hist)}")
-
-    print("\n# Average opened by rarity:")
-    for rarity, hist in rarity_hist.items():
-        if hist:
-            print(f"  - {rarity}: {avg(hist)}")
-
-    if not bought:
-        print("\n# None were bought")
-    else:
-        print("\n# Average bought by rarity:")
-        for rarity, count in bought.items():
-            print(f"  - {rarity}: {count / args.runs}")
-
-    if args.percentiles:
-        print("\n# Percentiles")
-        print("\nTarget, 50, 75, 90, 95")
-
-        print(f"ALL, {', '.join(map(str, percentiles(opened_hist, args.runs)))}")
-        print(
-            f"COMMON, {', '.join(map(str, percentiles(common_opened_hist, args.runs)))}"
-        )
-        for rarity, hist in rarity_hist.items():
-            print(f"{rarity}, {', '.join(map(str, percentiles(hist, args.runs)))}")
+    results_reporter.report()
 
     if args.output_histograms:
-        histograms = {"ALL": opened_hist, "COMMON": common_opened_hist, **rarity_hist}
+        # TODO: leaky abstraction
+        histograms = {
+            "ALL": results_reporter.opened_hist,
+            "COMMON": results_reporter.common_opened_hist,
+            **results_reporter.rarity_hist,
+        }
         with open(args.output_histograms, "w") as f:
             dump_histograms(histograms, file=f)
 

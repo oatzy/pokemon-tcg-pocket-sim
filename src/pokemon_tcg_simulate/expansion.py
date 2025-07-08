@@ -118,3 +118,10 @@ class Expansion:
 
     def open_regular(self, variant):
         return [self._pick(i, variant) for i in range(5)]
+
+
+def create_common_mission(expansion: Expansion):
+    """
+    Create a mission that only requires collecting all common cards.
+    """
+    return {r.name: r.counts for r in expansion.rarities if not r.rare}
