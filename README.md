@@ -27,7 +27,7 @@ The following are the average number of packs you would need to open to obtain a
 | Shining Revelry         |    303 |     1185 |
 | Celestial Guardians     |    484 |     2143 |
 | Extradimensional Crisis |    148 |      925 |
-| Eevee Grove             |    184 |      952 |
+| Eevee Grove             |    182 |      908 |
 
 This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
 
@@ -46,3 +46,16 @@ When combined with a 'mission', the initial state must be restricted to cards wi
 Initial state is define in a json format file. The `data/collected` directory contains a description, along with some examples.
 
 
+## TODO
+
+Features:
+
+- Card statistics, e.g. duplicates, collected/missing after N packs
+- Support more types of missions, e.g. alternates (collect card A or card B)
+- Support defining collection in terms of missing cards
+
+Quality of life:
+
+- Improve performance
+- Logging and error handling
+- Input validation

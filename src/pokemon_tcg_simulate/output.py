@@ -27,6 +27,24 @@ class OpenedStatistics:
                     self.rarity_hist[rarity] = Counter()
                 self.rarity_hist[rarity].update([collection.completed_at])
 
+    def summary(self):
+        return {
+            "average_opened": {
+                "value": avg(self.opened_hist),
+                "description": "Average packs opened",
+            },
+            "average_opened_for_common": {
+                "value": avg(self.common_opened_hist),
+                "description": "Average opened for all common",
+            },
+            "average_opened_by_rarity": {
+                "value": {
+                    rarity: avg(hist) for rarity, hist in self.rarity_hist.items()
+                },
+                "description": "Average opened by rarity",
+            },
+        }
+
 
 @dataclass(kw_only=True)
 class BoughtStatistics:
@@ -43,18 +61,34 @@ class BoughtStatistics:
             if collection.bought:
                 self.bought[rarity] += len(collection.bought)
 
+    def summary(self):
+        return {
+            "average_bought_by_rarity": {
+                "value": {
+                    rarity: count / self.runs for rarity, count in self.bought.items()
+                }
+                if self.bought
+                else None,
+                "description": "Average bought by rarity",
+            }
+        }
+
+
+def format_markdown(stats: dict) -> str:
+    lines = []
+    for stat in stats.values():
+        if isinstance(stat["value"], dict):
+            lines.append(f"# {stat['description']}")
+            for key, value in stat["value"].items():
+                lines.append(f"- {key}: {value}")
+        else:
+            lines.append(f"# {stat['description']}: {stat['value']}")
+        lines.append("")  # Add a blank line for separation
+    return "\n".join(lines)
+
 
 def report_opened_averages(stats: OpenedStatistics, file=None):
-    print(f"# Average packs opened: {avg(stats.opened_hist)}", file=file)
-    print(
-        f"# Average opened for all common: {avg(stats.common_opened_hist)}",
-        file=file,
-    )
-
-    print("\n# Average opened by rarity:", file=file)
-    for rarity, hist in stats.rarity_hist.items():
-        if hist:
-            print(f"  - {rarity}: {avg(hist)}", file=file)
+    print(format_markdown(stats.summary()), file=file)
 
 
 def report_opened_percentiles(stats: OpenedStatistics, file=None):
@@ -81,12 +115,7 @@ def report_opened_histograms(stats: OpenedStatistics, file=None):
 
 
 def report_bought_averages(stats: BoughtStatistics, file=None):
-    if not stats.bought:
-        print("# None were bought", file=file)
-    else:
-        print("\n# Average bought by rarity:", file=file)
-        for rarity, count in stats.bought.items():
-            print(f"  - {rarity}: {count / stats.runs}", file=file)
+    print(format_markdown(stats.summary()), file=file)
 
 
 def avg(counter: Counter):
