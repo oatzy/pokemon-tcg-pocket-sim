@@ -87,10 +87,6 @@ def format_markdown(stats: dict) -> str:
     return "\n".join(lines)
 
 
-def report_opened_averages(stats: OpenedStatistics, file=None):
-    print(format_markdown(stats.summary()), file=file)
-
-
 def report_opened_percentiles(stats: OpenedStatistics, file=None):
     # TODO: configurable percentiles
     print("\n# Percentiles", file=file)
@@ -112,10 +108,6 @@ def report_opened_histograms(stats: OpenedStatistics, file=None):
         **stats.rarity_hist,
     }
     dump_histograms(histograms, file=file)
-
-
-def report_bought_averages(stats: BoughtStatistics, file=None):
-    print(format_markdown(stats.summary()), file=file)
 
 
 def avg(counter: Counter):

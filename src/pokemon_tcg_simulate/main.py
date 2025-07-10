@@ -1,4 +1,5 @@
 import json
+import time
 from argparse import ArgumentParser
 
 from pokemon_tcg_simulate.collection import Collection
@@ -6,10 +7,9 @@ from pokemon_tcg_simulate.expansion import Expansion, create_common_mission
 from pokemon_tcg_simulate.output import (
     BoughtStatistics,
     OpenedStatistics,
-    report_bought_averages,
-    report_opened_averages,
     report_opened_histograms,
     report_opened_percentiles,
+    format_markdown,
 )
 from pokemon_tcg_simulate.simulation import simulate
 
@@ -34,9 +34,7 @@ def main():
     parser.add_argument(
         "--no-buy", action="store_false", dest="buy", help="do not buy cards"
     )
-    parser.add_argument(
-        "-p", "--percentiles", action="store_true", help="print percentiles"
-    )
+    parser.add_argument("--json", action="store_true", help="output results as JSON")
     parser.add_argument("-o", "--output-histograms", help="path to dump histograms to")
 
     args = parser.parse_args()
@@ -62,7 +60,16 @@ def main():
 
     mission = mission and mission["cards"]
 
+    results = {}
+    results["metadata"] = {
+        "expansion": expansion.name,
+        "runs": args.runs,
+        "mission": mission and mission.get("mission"),
+    }
+
     # --- Simulation ---
+
+    start = time.time()
 
     statistics = OpenedStatistics()
     bought = BoughtStatistics()
@@ -86,12 +93,23 @@ def main():
 
     # --- Results ---
 
-    report_opened_averages(statistics)
+    end = time.time()
+    results["runtime"] = {
+        "total": end - start,
+        "per_run": (end - start) / args.runs,
+    }
 
-    report_bought_averages(bought)
+    results["statistics"] = {
+        "opened": statistics.summary(),
+        "bought": bought.summary(),
+    }
 
-    if args.percentiles:
-        report_opened_percentiles(statistics)
+    if args.json:
+        print(json.dumps(results, indent=2))
+
+    else:
+        for stat in results["statistics"].values():
+            print(format_markdown(stat))
 
     if args.output_histograms:
         with open(args.output_histograms, "w") as f:
