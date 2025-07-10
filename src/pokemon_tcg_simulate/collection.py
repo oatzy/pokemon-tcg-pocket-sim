@@ -87,6 +87,14 @@ class RarityCollection:
             return any_count + len(self.collected.get(variant, []))
         return sum(len(v) for v in self.collected.values())
 
+    def total(self, variant: str | None = None):
+        any_total = self.collected.get(ANY, Variant(0)).total
+        if variant == ANY:
+            return any_total
+        if variant:
+            return any_total + self.collected.get(variant, Variant(0)).total
+        return sum(v.total for v in self.collected.values())
+
     def iter_missing(self):
         for variant, count in self.rarity.counts.items():
             yield from (

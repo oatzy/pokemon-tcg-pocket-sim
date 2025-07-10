@@ -19,7 +19,8 @@ class OpenedStatistics:
 
     def add(self, result: Collection):
         self.opened_hist.update([result.opened])
-        self.common_opened_hist.update([result.all_common_at])
+        if result.all_common_at is not None:
+            self.common_opened_hist.update([result.all_common_at])
 
         for rarity, collection in result.collected.items():
             if collection.completed_at is not None:
@@ -42,6 +43,54 @@ class OpenedStatistics:
                     rarity: avg(hist) for rarity, hist in self.rarity_hist.items()
                 },
                 "description": "Average opened by rarity",
+            },
+        }
+
+
+@dataclass(kw_only=True)
+class CardStatistics:
+    cards_by_rarity: dict[str, Counter] = field(
+        init=False, default_factory=lambda: defaultdict(Counter)
+    )
+
+    cards_missing_by_rarity: dict[str, Counter] = field(
+        init=False, default_factory=lambda: defaultdict(Counter)
+    )
+
+    duplicates_by_rarity: dict[str, Counter] = field(
+        init=False, default_factory=lambda: defaultdict(Counter)
+    )
+
+    def add(self, result: Collection):
+        # TODO: percentages
+        for rarity, collection in result.collected.items():
+            count = collection.count()
+            self.cards_by_rarity[rarity].update([count])
+            self.cards_missing_by_rarity[rarity].update([collection.remaining()])
+            if count > 0:
+                self.duplicates_by_rarity[rarity].update([collection.total() / count])
+
+    def summary(self):
+        return {
+            "cards_by_rarity": {
+                "value": {
+                    rarity: avg(hist) for rarity, hist in self.cards_by_rarity.items()
+                },
+                "description": "Average unique cards collected by rarity",
+            },
+            "cards_missing_by_rarity": {
+                "value": {
+                    rarity: avg(hist)
+                    for rarity, hist in self.cards_missing_by_rarity.items()
+                },
+                "description": "Average cards missing by rarity",
+            },
+            "duplicates_by_rarity": {
+                "value": {
+                    rarity: avg(hist)
+                    for rarity, hist in self.duplicates_by_rarity.items()
+                },
+                "description": "Average number of copies of each card by rarity",
             },
         }
 

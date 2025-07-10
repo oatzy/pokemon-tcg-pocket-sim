@@ -84,7 +84,7 @@ class VariantIterator:
             self.variants.remove(variant)
 
 
-def simulate(expansion, collection: Collection, *, buy_cards=True):
+def simulate(expansion, collection: Collection, *, buy_cards=True, max_opened=None):
     # NOTE: mutates the collection object
     collected = collection.collected
 
@@ -121,5 +121,8 @@ def simulate(expansion, collection: Collection, *, buy_cards=True):
 
         if completed_variant(collected, variant):
             variants.remove(variant)
+
+        if max_opened is not None and collection.opened >= max_opened:
+            break
 
     return collection

@@ -6,9 +6,9 @@ from pokemon_tcg_simulate.collection import Collection
 from pokemon_tcg_simulate.expansion import Expansion, create_common_mission
 from pokemon_tcg_simulate.output import (
     BoughtStatistics,
+    CardStatistics,
     OpenedStatistics,
     report_opened_histograms,
-    report_opened_percentiles,
     format_markdown,
 )
 from pokemon_tcg_simulate.simulation import simulate
@@ -31,6 +31,7 @@ def main():
     parser.add_argument(
         "-r", "--runs", default=100, type=int, help="number of simulations to run"
     )
+    parser.add_argument("--max-opened", type=int, help="max packs to open")
     parser.add_argument(
         "--no-buy", action="store_false", dest="buy", help="do not buy cards"
     )
@@ -72,6 +73,7 @@ def main():
     start = time.time()
 
     statistics = OpenedStatistics()
+    card_stats = CardStatistics()
     bought = BoughtStatistics()
 
     for _ in range(args.runs):
@@ -86,9 +88,11 @@ def main():
             expansion,
             collection,
             buy_cards=args.buy,
+            max_opened=args.max_opened,
         )
 
         statistics.add(result)
+        card_stats.add(result)
         bought.add(result)
 
     # --- Results ---
@@ -101,6 +105,7 @@ def main():
 
     results["statistics"] = {
         "opened": statistics.summary(),
+        "cards": card_stats.summary(),
         "bought": bought.summary(),
     }
 
