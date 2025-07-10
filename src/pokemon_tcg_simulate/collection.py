@@ -80,20 +80,13 @@ class RarityCollection:
         self.bought.append(item)
 
     def count(self, variant: str | None = None):
-        any_count = len(self.collected.get(ANY, []))
-        if variant == ANY:
-            return any_count
-        if variant:
-            return any_count + len(self.collected.get(variant, []))
-        return sum(len(v) for v in self.collected.values())
+        return variant_sum(self, variant, key=len)
 
     def total(self, variant: str | None = None):
-        any_total = self.collected.get(ANY, Variant(0)).total
-        if variant == ANY:
-            return any_total
-        if variant:
-            return any_total + self.collected.get(variant, Variant(0)).total
-        return sum(v.total for v in self.collected.values())
+        return variant_sum(self, variant, key=lambda v: v.total)
+
+    def size(self, variant: str | None = None):
+        return variant_sum(self, variant, key=lambda v: v.size)
 
     def iter_missing(self):
         for variant, count in self.rarity.counts.items():
@@ -121,6 +114,20 @@ class RarityCollection:
 
         if self.remaining() == 0:
             self.completed_at = 0
+
+
+def variant_sum(collection, variant: str | None = None, key=len):
+    if variant is None:
+        return sum(key(v) for v in collection.collected.values())
+
+    any_total = 0
+    if ANY in collection.collected:
+        any_total = key(collection.collected[ANY])
+
+    if variant == ANY or variant not in collection.collected:
+        return any_total
+
+    return any_total + key(collection.collected[variant])
 
 
 @dataclass(kw_only=True)

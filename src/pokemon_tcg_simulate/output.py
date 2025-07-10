@@ -61,12 +61,19 @@ class CardStatistics:
         init=False, default_factory=lambda: defaultdict(Counter)
     )
 
+    # TODO: common completed, rare completed
+    # TODO: variants
+
     def add(self, result: Collection):
         # TODO: percentages
         for rarity, collection in result.collected.items():
             count = collection.count()
-            self.cards_by_rarity[rarity].update([count])
-            self.cards_missing_by_rarity[rarity].update([collection.remaining()])
+            size = collection.size()
+            if size > 0:
+                self.cards_by_rarity[rarity].update([count / size])
+                self.cards_missing_by_rarity[rarity].update(
+                    [collection.remaining() / size]
+                )
             if count > 0:
                 self.duplicates_by_rarity[rarity].update([collection.total() / count])
 
@@ -74,16 +81,17 @@ class CardStatistics:
         return {
             "cards_by_rarity": {
                 "value": {
-                    rarity: avg(hist) for rarity, hist in self.cards_by_rarity.items()
+                    rarity: 100 * avg(hist)
+                    for rarity, hist in self.cards_by_rarity.items()
                 },
-                "description": "Average unique cards collected by rarity",
+                "description": "Average percent collected by rarity",
             },
             "cards_missing_by_rarity": {
                 "value": {
-                    rarity: avg(hist)
+                    rarity: 100 * avg(hist)
                     for rarity, hist in self.cards_missing_by_rarity.items()
                 },
-                "description": "Average cards missing by rarity",
+                "description": "Average percent missing by rarity",
             },
             "duplicates_by_rarity": {
                 "value": {
@@ -124,10 +132,12 @@ class BoughtStatistics:
 
 
 def format_markdown(stats: dict) -> str:
+    # TODO: round numbers to 2 decimal places
     lines = []
     for stat in stats.values():
         if isinstance(stat["value"], dict):
             lines.append(f"# {stat['description']}")
+            # TODO: sorting (maybe not here)
             for key, value in stat["value"].items():
                 lines.append(f"- {key}: {value}")
         else:

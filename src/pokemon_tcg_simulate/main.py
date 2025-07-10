@@ -103,6 +103,8 @@ def main():
         "per_run": (end - start) / args.runs,
     }
 
+    # TODO: don't include cards collected/missing if max-opened not used
+
     results["statistics"] = {
         "opened": statistics.summary(),
         "cards": card_stats.summary(),
