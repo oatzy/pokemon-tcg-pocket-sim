@@ -61,11 +61,20 @@ class CardStatistics:
         init=False, default_factory=lambda: defaultdict(Counter)
     )
 
+    common_collected: Counter = field(init=False, default_factory=Counter)
+
+    total_collected: Counter = field(init=False, default_factory=Counter)
+
     # TODO: common completed, rare completed
     # TODO: variants
 
     def add(self, result: Collection):
-        # TODO: percentages
+        # TODO: include raw numbers and percentages
+        self.common_collected.update(
+            [sum(r.count() for r in result.collected.values() if not r.rarity.rare)]
+        )
+        self.total_collected.update([sum(r.count() for r in result.collected.values())])
+
         for rarity, collection in result.collected.items():
             count = collection.count()
             size = collection.size()
@@ -79,6 +88,14 @@ class CardStatistics:
 
     def summary(self):
         return {
+            "common_collected": {
+                "value": avg(self.common_collected),
+                "description": "Total unique common cards collected",
+            },
+            "total_collected": {
+                "value": avg(self.total_collected),
+                "description": "Total unique cards collected",
+            },
             "cards_by_rarity": {
                 "value": {
                     rarity: 100 * avg(hist)
