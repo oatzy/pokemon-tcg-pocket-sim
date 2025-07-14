@@ -20,16 +20,16 @@ The following are the average number of packs you would need to open to obtain a
 
 | Expansion               | Common | Complete |
 | ----------------------- | -----: | -------: |
-| Genetic Apex            |    781 |     2208 |
-| Mythical Island         |    149 |      700 |
-| Space-Time Smackdown    |    460 |     1753 |
-| Triumphant Light        |    191 |      876 |
-| Shining Revelry         |    303 |     1185 |
-| Celestial Guardians     |    484 |     2143 |
-| Extradimensional Crisis |    148 |      925 |
-| Eevee Grove             |    182 |      908 |
+| Genetic Apex            |    790 |     2052 |
+| Mythical Island         |    149 |      659 |
+| Space-Time Smackdown    |    460 |     1660 |
+| Triumphant Light        |    190 |      832 |
+| Shining Revelry         |    307 |     1137 |
+| Celestial Guardians     |    485 |     2048 |
+| Extradimensional Crisis |    148 |      859 |
+| Eevee Grove             |    182 |      906 |
 
-This suggests, for example, that free players would need to open 2 Genetic Apex boosters a day for on average ~3 years to complete that set.
+This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
 ## Missions
 
@@ -50,12 +50,12 @@ Initial state is define in a json format file. The `data/collected` directory co
 
 Features:
 
-- Card statistics, e.g. duplicates, collected/missing after N packs
 - Support more types of missions, e.g. alternates (collect card A or card B)
 - Support defining collection in terms of missing cards
 
 Quality of life:
 
+- Improve output formatting
 - Improve performance
 - Logging and error handling
 - Input validation

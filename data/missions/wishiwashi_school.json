@@ -1,0 +1,19 @@
+{
+    "expansion": "Celestial Guardians",
+    "mission": "Wishiwashi and 1's School",
+    "cards": {
+        "DIAMOND1": {
+            "Lunala": 1
+        },
+        "DIAMOND2": {
+            "Solgaleo": 1
+        },
+        "DIAMOND4": {
+            "Lunala": 1
+        },
+        "STAR2": {
+            "Lunala": 2,
+            "Solgaleo": 1
+        }
+    }
+}

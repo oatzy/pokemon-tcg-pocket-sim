@@ -1,0 +1,11 @@
+{
+    "expansion": "Genetic Apex",
+    "mission": "The Legendary Flight Continues",
+    "cards": {
+        "STAR2": {
+            "Mewtwo": 1,
+            "Pikachu": 1,
+            "Charizard": 1
+        }
+    }
+}
