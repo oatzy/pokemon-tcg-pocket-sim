@@ -7,13 +7,6 @@ from pokemon_tcg_simulate.expansion import ANY
 # max pack points that can be held at a time
 MAX_PACK_POINTS = 2_500
 
-# % prob of pulling a rare booster pack
-RARE_PROBABILITY = 0.050
-
-
-def rare_booster():
-    return 100 * random.random() <= RARE_PROBABILITY
-
 
 def pick_from_remaining(collection, key):
     for rarity, collected in sorted(collection.items(), key=key):
@@ -56,6 +49,7 @@ def completed_all(collection):
 
 
 def completed_common(collection):
+    # TODO: incorrectly treats star1+1 as common
     return all(
         v.completed_at is not None for v in collection.values() if not v.rarity.rare
     )
@@ -91,10 +85,7 @@ def simulate(expansion, collection: Collection, *, buy_cards=True, max_opened=No
     # TODO: configurable variant generator (cf simulate_mission)
     variants = VariantIterator(expansion.variants)
     for variant in variants:
-        if rare_booster():
-            pulled = expansion.open_rare(variant)
-        else:
-            pulled = expansion.open_regular(variant)
+        pulled = expansion.open(variant)
 
         collection.opened += 1
         collection.pack_points += 5

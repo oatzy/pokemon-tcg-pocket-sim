@@ -104,6 +104,8 @@ def main():
     }
 
     # TODO: don't include cards collected/missing if max-opened not used
+    # don't include opened stats if max-opened used
+    # don't include bought stats if no-buy used
 
     results["statistics"] = {
         "opened": statistics.summary(),

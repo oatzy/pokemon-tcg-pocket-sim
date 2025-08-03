@@ -1,8 +1,21 @@
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import accumulate, chain
 
 ANY = "_any_"
+
+# max number of cards that can appear in a pack
+# currently 6 for "regular + one card"
+MAX_CARDS_PER_PACK = 6
+
+# % prob of pulling a rare booster pack
+RARE_PROBABILITY = 0.050
+
+# default rate for pulling different booster types
+DEFAULT_BOOSTER_RATE = {
+    "regular": 100 - RARE_PROBABILITY,
+    "rare": RARE_PROBABILITY,
+}
 
 
 @dataclass
@@ -14,7 +27,7 @@ class Rarity:
     cost: int
 
     # % rate for each of the 5 slots
-    offering_rate: tuple[int]
+    offering_rate: tuple[float]
 
     # counts[ANY] = cards appearing in all variants
     # counts[x] = variant exclusive cards
@@ -25,6 +38,9 @@ class Rarity:
 
     # counts of cards in rare boosters
     rare_counts: dict[str, int] | None = None
+
+    # whether it appears as the 6th in a plus one booster
+    plus_one: bool = False
 
     def __post_init__(self):
         if isinstance(self.counts, int):
@@ -37,6 +53,12 @@ class Rarity:
         # but for rare boosters, each crown card is variant locked
         if self.rare and self.rare_counts is None:
             self.rare_counts = self.counts
+
+        if self.plus_one:
+            if isinstance(self.offering_rate, float):
+                self.offering_rate = (0,) * 5 + (self.offering_rate,)
+        elif len(self.offering_rate) < MAX_CARDS_PER_PACK:
+            self.offering_rate += (0,) * (MAX_CARDS_PER_PACK - len(self.offering_rate))
 
     def iter_rare_cards(self, variant):
         if not self.rare:
@@ -69,12 +91,13 @@ class Expansion:
     name: str
     variants: list[str]
     rarities: tuple[Rarity]
+    booster_rates: dict[str, float] = field(default_factory=DEFAULT_BOOSTER_RATE.copy)
 
     def __post_init__(self):
         # pre-calculate cumulative probability by position
         self._cum_prob = [
             list(accumulate(x.offering_rate[p] for x in self.rarities))
-            for p in range(5)
+            for p in range(MAX_CARDS_PER_PACK)
         ]
 
         self._rare_cards = {
@@ -91,13 +114,29 @@ class Expansion:
     @classmethod
     def from_json(cls, data):
         # TODO: validation
-        return Expansion(
-            name=data["name"],
-            variants=data.get("variants", [ANY]),
-            rarities=tuple(
+        kwargs = {
+            **data,
+            "variants": data.get("variants", [ANY]),
+            "rarities": tuple(
                 Rarity(**r) for r in sorted(data["rarities"], key=lambda x: -x["cost"])
             ),
-        )
+        }
+        return Expansion(**kwargs)
+
+    def pick_booster(self):
+        r = 100 * random.random()
+
+        p = 0
+        for booster, prob in self.booster_rates.items():
+            p += prob
+            if r <= p:
+                return booster
+
+        if p == 0:
+            raise Exception("Infinite loop! Check your booster probabilities")
+
+        # shouldn't happen (rounding error?)
+        return self.pick_booster()
 
     def open_rare(self, variant):
         return random.choices(self._rare_cards[variant], k=5)
@@ -118,6 +157,17 @@ class Expansion:
 
     def open_regular(self, variant):
         return [self._pick(i, variant) for i in range(5)]
+
+    def open_regular_plus_one(self, variant):
+        return [self._pick(i, variant) for i in range(6)]
+
+    def open(self, variant):
+        booster = self.pick_booster()
+        return {
+            "regular": self.open_regular,
+            "rare": self.open_rare,
+            "plus_one": self.open_regular_plus_one,
+        }[booster](variant)
 
 
 def create_common_mission(expansion: Expansion):
