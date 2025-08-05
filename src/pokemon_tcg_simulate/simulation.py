@@ -1,4 +1,3 @@
-import random
 from collections import deque
 
 from pokemon_tcg_simulate.collection import Collection

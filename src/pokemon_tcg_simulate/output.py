@@ -138,11 +138,11 @@ class BoughtStatistics:
     def summary(self):
         return {
             "average_bought_by_rarity": {
-                "value": {
-                    rarity: count / self.runs for rarity, count in self.bought.items()
-                }
-                if self.bought
-                else None,
+                "value": (
+                    {rarity: count / self.runs for rarity, count in self.bought.items()}
+                    if self.bought
+                    else None
+                ),
                 "description": "Average bought by rarity",
             }
         }

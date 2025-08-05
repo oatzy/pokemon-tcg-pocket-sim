@@ -71,7 +71,7 @@ def main():
     # --- Simulation ---
 
     start = time.time()
-    
+
     statistics = {}
 
     if args.max_opened:
@@ -80,7 +80,7 @@ def main():
         statistics["opened"] = OpenedStatistics()
     if args.buy:
         statistics["bought"] = BoughtStatistics()
-    
+
     for _ in range(args.runs):
         # Create a new collection for each run
         # as collection is mutated during simulation
