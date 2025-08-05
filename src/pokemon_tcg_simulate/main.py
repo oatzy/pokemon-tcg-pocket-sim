@@ -71,11 +71,16 @@ def main():
     # --- Simulation ---
 
     start = time.time()
+    
+    statistics = {}
 
-    statistics = OpenedStatistics()
-    card_stats = CardStatistics()
-    bought = BoughtStatistics()
-
+    if args.max_opened:
+        statistics["cards"] = CardStatistics()
+    else:
+        statistics["opened"] = OpenedStatistics()
+    if args.buy:
+        statistics["bought"] = BoughtStatistics()
+    
     for _ in range(args.runs):
         # Create a new collection for each run
         # as collection is mutated during simulation
@@ -91,9 +96,8 @@ def main():
             max_opened=args.max_opened,
         )
 
-        statistics.add(result)
-        card_stats.add(result)
-        bought.add(result)
+        for stat in statistics.values():
+            stat.add(result)
 
     # --- Results ---
 
@@ -103,15 +107,7 @@ def main():
         "per_run": (end - start) / args.runs,
     }
 
-    # TODO: don't include cards collected/missing if max-opened not used
-    # don't include opened stats if max-opened used
-    # don't include bought stats if no-buy used
-
-    results["statistics"] = {
-        "opened": statistics.summary(),
-        "cards": card_stats.summary(),
-        "bought": bought.summary(),
-    }
+    results["statistics"] = {name: stat.summary() for name, stat in statistics.items()}
 
     if args.json:
         print(json.dumps(results, indent=2))
