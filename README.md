@@ -12,7 +12,7 @@ dropping variants if/when they are completed.
 
 The `data/expansions` directory contains metadata about each expansion (numbers of cards, offering rates, etc.)
 
-Blog post: _coming soon_
+See this [blog post](https://oatzy.github.io/2025/08/06/pokemon-part2-how-long.html) for the motivation
 
 ## Example results
 
