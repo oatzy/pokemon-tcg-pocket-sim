@@ -29,6 +29,7 @@ The following are the average number of packs you would need to open to obtain a
 | Extradimensional Crisis |    148 |      859 |
 | Eevee Grove             |    182 |      906 |
 | Wisdom of Sea and Sky   |    521 |     1820 |
+| Secluded Springs        |    176 |      862 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
