@@ -92,6 +92,7 @@ class Expansion:
     variants: list[str]
     rarities: tuple[Rarity]
     booster_rates: dict[str, float] = field(default_factory=DEFAULT_BOOSTER_RATE.copy)
+    cards_per_pack: int = 5
 
     def __post_init__(self):
         # pre-calculate cumulative probability by position
@@ -156,10 +157,10 @@ class Expansion:
         return rarity.name, rarity.pick(variant)
 
     def open_regular(self, variant):
-        return [self._pick(i, variant) for i in range(5)]
+        return [self._pick(i, variant) for i in range(self.cards_per_pack)]
 
     def open_regular_plus_one(self, variant):
-        return [self._pick(i, variant) for i in range(6)]
+        return [self._pick(i, variant) for i in range(self.cards_per_pack + 1)]
 
     def open(self, variant):
         booster = self.pick_booster()

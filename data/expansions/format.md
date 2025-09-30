@@ -7,6 +7,7 @@ Fields:
 - `name` - names of the expansion
 - `variants` - list of variant names (if any)
 - `booster_rates` - percentage probability of each booster type
+- `cards_per_pack` - number of cards in a standard booster pack (plus-one boosters have this + 1). Default = 5
 - `rarities` - list of rarity objects
 
 ## booster_rates

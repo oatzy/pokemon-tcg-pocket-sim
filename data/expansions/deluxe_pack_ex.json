@@ -1,0 +1,143 @@
+{
+    "name": "Deluxe Pack ex",
+    "cards_per_pack": 4,
+    "rarities": [
+        {
+            "name": "CROWN",
+            "cost": 2500,
+            "offering_rate": [
+                0,
+                0,
+                0.198,
+                0
+            ],
+            "counts": 1,
+            "rare": true
+        },
+        {
+            "name": "RAINBOW2",
+            "cost": 1350,
+            "offering_rate": [
+                0,
+                0,
+                1.667,
+                0
+            ],
+            "counts": 2,
+            "rare": true
+        },
+        {
+            "name": "STAR3",
+            "cost": 1500,
+            "offering_rate": [
+                0,
+                0,
+                1.111,
+                0
+            ],
+            "counts": 1,
+            "rare": true
+        },
+        {
+            "name": "STAR2",
+            "cost": 1250,
+            "offering_rate": [
+                0,
+                0,
+                2.500,
+                0
+            ],
+            "counts": 16,
+            "rare": true
+        },
+        {
+            "name": "STAR1",
+            "cost": 400,
+            "offering_rate": [
+                0,
+                0,
+                12.858,
+                0
+            ],
+            "counts": 6,
+            "rare": true
+        },
+        {
+            "name": "DIAMOND4",
+            "cost": 500,
+            "offering_rate": [
+                0,
+                0,
+                0,
+                100
+            ],
+            "counts": 75
+        },
+        {
+            "name": "DIAMOND3-MIRROR",
+            "cost": 150,
+            "offering_rate": [
+                0,
+                0,
+                8.975,
+                0
+            ],
+            "counts": 25
+        },
+        {
+            "name": "DIAMOND3",
+            "cost": 150,
+            "offering_rate": [
+                0,
+                0,
+                31.650,
+                0
+            ],
+            "counts": 25
+        },
+        {
+            "name": "DIAMOND2-MIRROR",
+            "cost": 70,
+            "offering_rate": [
+                0,
+                0,
+                17.985,
+                0
+            ],
+            "counts": 50
+        },
+        {
+            "name": "DIAMOND2",
+            "cost": 70,
+            "offering_rate": [
+                0,
+                82.270,
+                0,
+                0
+            ],
+            "counts": 50
+        },
+        {
+            "name": "DIAMOND1-MIRROR",
+            "cost": 35,
+            "offering_rate": [
+                0,
+                0,
+                23.021,
+                0
+            ],
+            "counts": 64
+        },
+        {
+            "name": "DIAMOND1",
+            "cost": 35,
+            "offering_rate": [
+                100,
+                17.730,
+                0,
+                0
+            ],
+            "counts": 64
+        }
+    ]
+}
