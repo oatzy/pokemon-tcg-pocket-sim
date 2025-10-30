@@ -25,6 +25,7 @@ Fields:
 - `cost` - how many pack points it costs to buy a card of this rarity
 - `offering_rate` - percentage probability of a card of this rarity appearing in position 1 to 5
 - `counts` - number of cards of this rarity
+- `common` - whether cards of this rarity are 'common', i.e. 1 to 4 diamond cards
 - `rare` - whether cards of this rarity appear in rare boosters (default = false)
 - `rare_count` - counts for this rarity in rare boosters (if different from regular boosters)
 - `plus_one` - whether the cards are only available as the 6th card in a 'regular + 1' booster

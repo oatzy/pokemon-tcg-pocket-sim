@@ -33,6 +33,9 @@ class Rarity:
     # counts[x] = variant exclusive cards
     counts: dict[str, int]
 
+    # whether this is a 'common' 1-4 diamond card
+    common: bool | None = None
+
     # whether it appears in rare boosters
     rare: bool = False
 
@@ -43,6 +46,12 @@ class Rarity:
     plus_one: bool = False
 
     def __post_init__(self):
+        # backwards compatibility
+        # any card which doesn't appear in rare boosters
+        # is assumed to be common
+        if self.common is None:
+            self.common = not self.rare
+
         if isinstance(self.counts, int):
             self.counts = {ANY: self.counts}
 

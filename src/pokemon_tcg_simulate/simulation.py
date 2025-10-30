@@ -50,7 +50,7 @@ def completed_all(collection):
 def completed_common(collection):
     # TODO: incorrectly treats star1+1 as common
     return all(
-        v.completed_at is not None for v in collection.values() if not v.rarity.rare
+        v.completed_at is not None for v in collection.values() if v.rarity.common
     )
 
 
