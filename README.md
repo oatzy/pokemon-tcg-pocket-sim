@@ -32,6 +32,7 @@ The following are the average number of packs you would need to open to obtain a
 | Secluded Springs        |    176 |      862 |
 | Deluxe Pack ex          |   1036 |     1051 |
 | Mega Rising             |    828 |     2613 |
+| Crimson Blaze           |    149 |      934 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
