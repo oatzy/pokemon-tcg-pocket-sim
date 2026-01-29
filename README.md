@@ -18,6 +18,8 @@ See this [blog post](https://oatzy.github.io/2025/08/06/pokemon-part2-how-long.h
 
 The following are the average number of packs you would need to open to obtain all the common (1 to 4 diamond) cards, and the complete set of all cards.
 
+### Series A
+
 | Expansion               | Common | Complete |
 | ----------------------- | -----: | -------: |
 | Genetic Apex            |    790 |     2052 |
@@ -31,8 +33,14 @@ The following are the average number of packs you would need to open to obtain a
 | Wisdom of Sea and Sky   |    521 |     1820 |
 | Secluded Springs        |    176 |      862 |
 | Deluxe Pack ex          |   1036 |     1051 |
+
+### Series B
+
+| Expansion               | Common | Complete |
+| ----------------------- | -----: | -------: |
 | Mega Rising             |    828 |     2613 |
 | Crimson Blaze           |    149 |      934 |
+| Fantastical Parade      |    487 |     1808 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
