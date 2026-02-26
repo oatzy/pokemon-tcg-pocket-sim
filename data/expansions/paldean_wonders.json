@@ -1,0 +1,78 @@
+{
+    "name": "Paldean Wonders",
+    "booster_rates": {
+        "regular": 94.711,
+        "rare": 0.050,
+        "plus_one": 5.238
+    },
+    "rarities": [
+        {
+            "name": "CROWN",
+            "cost": 2500, 
+            "offering_rate": [0, 0, 0, 0.040, 0.160], 
+            "counts": 2,
+            "rare": true
+        },
+        {
+            "name": "RAINBOW2",
+            "cost": 1350, 
+            "offering_rate": 31.820, 
+            "counts": 4, 
+            "plus_one": true,
+            "common": false
+        },
+        {
+            "name": "RAINBOW1",
+            "cost": 1000, 
+            "offering_rate": 68.180, 
+            "counts": 10, 
+            "plus_one": true,
+            "common": false
+        },
+        {
+            "name": "STAR3",
+            "cost": 1500, 
+            "offering_rate": [0, 0, 0, 0.222, 0.889], 
+            "counts": 1, 
+            "rare": true
+        },
+        {
+            "name": "STAR2",
+            "cost": 1250,
+            "offering_rate": [0, 0, 0, 0.500, 2.000], 
+            "counts": 15, 
+            "rare": true
+        },
+        {
+            "name": "STAR1",
+            "cost": 400,
+            "offering_rate": [0, 0, 0, 2.572, 10.286], 
+            "counts": 6, 
+            "rare": true
+        },
+        {
+            "name": "DIAMOND4",
+            "cost": 500,
+            "offering_rate": [0, 0, 0, 1.667, 6.667],
+            "counts": 5
+        },
+        {
+            "name": "DIAMOND3",
+            "cost": 150,
+            "offering_rate": [0, 0, 0, 5.000, 20.000],
+            "counts": 12 
+        },
+        {
+            "name": "DIAMOND2",
+            "cost": 70, 
+            "offering_rate": [0, 0, 0, 89.999, 59.998],
+            "counts": 33
+        },
+        {
+            "name": "DIAMOND1",
+            "cost": 35,
+            "offering_rate": [100, 100, 100, 0, 0],
+            "counts": 43
+        }
+    ]
+}
