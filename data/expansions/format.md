@@ -29,6 +29,7 @@ Fields:
 - `rare` - whether cards of this rarity appear in rare boosters (default = false)
 - `rare_count` - counts for this rarity in rare boosters (if different from regular boosters)
 - `plus_one` - whether the cards are only available as the 6th card in a 'regular + 1' booster
+- `themed_rare` - whether the cards are available in 'themed rare' booster packs
 
 The name must match across missions and collections (if used), but otherwise don't matter.
 
@@ -47,7 +48,9 @@ If there are no variants, then a single integer can be used. E.g. `3` is equival
 
 Counts can be found in game, but figuring out which cards appear in all variants (`_any_`) takes some working out.
 
-# Plus one
+# Special booster types
+
+## Regular Plus One
 
 Wisdom of Sea and Sky introduces a new type of booster - "regular + one card"
 
@@ -55,3 +58,11 @@ As the name suggest it's a regular pack but with an extra sixth card.
 The sixth cards are _only_ available as the sixth in a plus-one pack, i.e. you can't get them in 'regular' regular packs..
 
 After a lot of thought, I decided it was best to treat these as their own rarity type, e.g. `STAR1+1` rather than a special case of `STAR1`. Plus, I think it's more useful/interesting to see how long it takes to collect the plus ones independent of their nominal rarity. Also, unlike regular one star cards, the plus one star cards don't appear in rare boosters.
+
+As of series B, the plus-one booster slot is used exclusively for shiny/rainbow cards. This turns out to work will with how I implemented plus-one.
+
+# Themed Rare
+
+Mega Shine introduces the "Themed rare" booster type.
+
+This is a booster with very low probability. In Mega Shine, the booster contains all 5 two-rainbow rarity cards. The two-rainbow cards also appear in regular+1 boosters. I think this was designed to balance out the probability given the introduction of a second 3-star card which is only available in regular+1 boosters.

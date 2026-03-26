@@ -45,6 +45,9 @@ class Rarity:
     # whether it appears as the 6th in a plus one booster
     plus_one: bool = False
 
+    # whether it appears in 'themed rare' boosters
+    themed_rare: bool = False
+
     def __post_init__(self):
         # backwards compatibility
         # any card which doesn't appear in rare boosters
@@ -171,12 +174,18 @@ class Expansion:
     def open_regular_plus_one(self, variant):
         return [self._pick(i, variant) for i in range(self.cards_per_pack + 1)]
 
+    def open_themed_rare(self, variant):
+        # assuming only one rarity appears in themed rare
+        rarity = next(r for r in self.rarities if r.themed_rare)
+        return [(rarity.name, (variant, i)) for i in range(rarity.count(variant))]
+    
     def open(self, variant):
         booster = self.pick_booster()
         return {
             "regular": self.open_regular,
             "rare": self.open_rare,
             "plus_one": self.open_regular_plus_one,
+            "themed_rare": self.open_themed_rare,
         }[booster](variant)
 
 

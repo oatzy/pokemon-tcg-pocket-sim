@@ -42,6 +42,7 @@ The following are the average number of packs you would need to open to obtain a
 | Crimson Blaze           |    149 |      934 |
 | Fantastical Parade      |    487 |     1808 |
 | Paldean Wonders         |    181 |     1127 |
+| Mega Shine              |    148 |     1377 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
