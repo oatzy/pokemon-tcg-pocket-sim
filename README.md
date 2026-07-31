@@ -46,6 +46,7 @@ The following are the average number of packs you would need to open to obtain a
 | Pulsing Aura            |    499 |     1806 |
 | Paradox Drive           |    179 |      975 |
 | Everyday Wonders        |    150 |      978 |
+| Ruler of the Skies      |    476 |     1750 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 

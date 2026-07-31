@@ -48,12 +48,21 @@ class Rarity:
     # whether it appears in 'themed rare' boosters
     themed_rare: bool = False
 
+    # whether it is guaranteed via a guaranteed 4-diamond+ booster
+    guaranteed: bool | None = None
+
+    # % rate in a guaranteed 4-diamond+ booster
+    guaranteed_rate: float | None = None
+
     def __post_init__(self):
         # backwards compatibility
         # any card which doesn't appear in rare boosters
         # is assumed to be common
         if self.common is None:
             self.common = not self.rare
+
+        if self.guaranteed is None:
+            self.guaranteed = self.guaranteed_rate is not None or not self.common
 
         if isinstance(self.counts, int):
             self.counts = {ANY: self.counts}
@@ -71,6 +80,14 @@ class Rarity:
                 self.offering_rate = (0,) * 5 + (self.offering_rate,)
         elif len(self.offering_rate) < MAX_CARDS_PER_PACK:
             self.offering_rate += (0,) * (MAX_CARDS_PER_PACK - len(self.offering_rate))
+
+        if self.guaranteed_rate is None:
+            self.guaranteed_rate = self.offering_rate
+        elif isinstance(self.guaranteed_rate, float):
+            self.guaranteed_rate = tuple(self.offering_rate[:4]) + (
+                self.guaranteed_rate,
+                0,
+            )
 
     def iter_rare_cards(self, variant):
         if not self.rare:
@@ -106,10 +123,18 @@ class Expansion:
     booster_rates: dict[str, float] = field(default_factory=DEFAULT_BOOSTER_RATE.copy)
     cards_per_pack: int = 5
 
+    guaranteed_after: int | None = None
+    guarantee_counter: int = 0
+
     def __post_init__(self):
         # pre-calculate cumulative probability by position
         self._cum_prob = [
             list(accumulate(x.offering_rate[p] for x in self.rarities))
+            for p in range(MAX_CARDS_PER_PACK)
+        ]
+
+        self._guaranteed_cum_prob = [
+            list(accumulate(x.guaranteed_rate[p] for x in self.rarities))
             for p in range(MAX_CARDS_PER_PACK)
         ]
 
@@ -124,6 +149,8 @@ class Expansion:
             for v in self.variants
         }
 
+        self._guaranteed_rarities = {r.name for r in self.rarities if r.guaranteed}
+
     @classmethod
     def from_json(cls, data):
         # TODO: validation
@@ -136,11 +163,21 @@ class Expansion:
         }
         return Expansion(**kwargs)
 
+    def _guaranteed_booster(self):
+        return (
+            self.guaranteed_after is not None
+            and self.guarantee_counter is not None
+            and self.guarantee_counter >= self.guaranteed_after
+        )
+
     def pick_booster(self):
         r = 100 * random.random()
 
         p = 0
         for booster, prob in self.booster_rates.items():
+            if booster == "regular" and self._guaranteed_booster():
+                booster = "guaranteed_four_diamond"
+
             p += prob
             if r <= p:
                 return booster
@@ -154,17 +191,19 @@ class Expansion:
     def open_rare(self, variant):
         return random.choices(self._rare_cards[variant], k=5)
 
-    def _pick(self, pos, variant):
+    def _pick(self, pos, variant, prob=None):
+        prob = prob or self._cum_prob
+
         r = 100 * random.random()
 
-        for i, p in enumerate(self._cum_prob[pos]):
+        for i, p in enumerate(prob[pos]):
             if r <= p:
                 rarity = self.rarities[i]
                 break
         else:
             # due to rounding, sometimes probabilities don't add to 100
             # if we fail to pick, retry
-            return self._pick(pos, variant)
+            return self._pick(pos, variant, prob)
 
         return rarity.name, rarity.pick(variant)
 
@@ -178,15 +217,29 @@ class Expansion:
         # assuming only one rarity appears in themed rare
         rarity = next(r for r in self.rarities if r.themed_rare)
         return [(rarity.name, (variant, i)) for i in range(rarity.count(variant))]
-    
+
+    def open_guaranteed_four_diamond(self, variant):
+        return [
+            self._pick(i, variant, self._guaranteed_cum_prob)
+            for i in range(self.cards_per_pack)
+        ]
+
     def open(self, variant):
         booster = self.pick_booster()
-        return {
+        pull = {
             "regular": self.open_regular,
             "rare": self.open_rare,
             "plus_one": self.open_regular_plus_one,
             "themed_rare": self.open_themed_rare,
+            "guaranteed_four_diamond": self.open_guaranteed_four_diamond,
         }[booster](variant)
+
+        if any(i[0] in self._guaranteed_rarities for i in pull):
+            self.guarantee_counter = 0
+        else:
+            self.guarantee_counter += 1
+
+        return pull
 
 
 def create_common_mission(expansion: Expansion):
