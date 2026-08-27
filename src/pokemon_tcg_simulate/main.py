@@ -8,8 +8,8 @@ from pokemon_tcg_simulate.output import (
     BoughtStatistics,
     CardStatistics,
     OpenedStatistics,
-    report_opened_histograms,
     format_markdown,
+    report_opened_histograms,
 )
 from pokemon_tcg_simulate.simulation import simulate
 
