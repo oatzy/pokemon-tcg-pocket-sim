@@ -59,13 +59,14 @@ def main():
     if args.stop_at_common:
         mission = create_common_mission(expansion)
 
+    mission_name = mission and mission.get("mission")
     mission = mission and mission["cards"]
 
     results = {}
     results["metadata"] = {
         "expansion": expansion.name,
         "runs": args.runs,
-        "mission": mission and mission.get("mission"),
+        "mission": mission_name,
     }
 
     # --- Simulation ---
