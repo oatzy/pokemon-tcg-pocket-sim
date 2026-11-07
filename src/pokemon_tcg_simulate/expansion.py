@@ -42,6 +42,9 @@ class Rarity:
     # counts of cards in rare boosters
     rare_counts: dict[str, int] | None = None
 
+    # whether it can appear in the last slot of a rare booster
+    rare_last_slot: bool = True
+
     # whether it appears as the 6th in a plus one booster
     plus_one: bool = False
 
@@ -149,6 +152,12 @@ class Expansion:
             for v in self.variants
         }
 
+        rare_last_slot = {r.name for r in self.rarities if r.rare_last_slot}
+        self._rare_last_cards = {
+            v: tuple(c for c in cards if c[0] in rare_last_slot)
+            for v, cards in self._rare_cards.items()
+        }
+
         self._guaranteed_rarities = {r.name for r in self.rarities if r.guaranteed}
 
     @classmethod
@@ -189,7 +198,9 @@ class Expansion:
         return self.pick_booster()
 
     def open_rare(self, variant):
-        return random.choices(self._rare_cards[variant], k=5)
+        return random.choices(
+            self._rare_cards[variant], k=self.cards_per_pack - 1
+        ) + random.choices(self._rare_last_cards[variant], k=1)
 
     def _pick(self, pos, variant, prob=None):
         prob = prob or self._cum_prob
@@ -211,7 +222,10 @@ class Expansion:
         return [self._pick(i, variant) for i in range(self.cards_per_pack)]
 
     def open_regular_plus_one(self, variant):
-        return [self._pick(i, variant) for i in range(self.cards_per_pack + 1)]
+        # the extra card always uses the plus-one slot rates, whatever the pack size
+        return self.open_regular(variant) + [
+            self._pick(MAX_CARDS_PER_PACK - 1, variant)
+        ]
 
     def open_themed_rare(self, variant):
         # assuming only one rarity appears in themed rare

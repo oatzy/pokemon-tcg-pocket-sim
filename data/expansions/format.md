@@ -31,6 +31,7 @@ Fields:
 - `rare` - whether cards of this rarity appear in rare boosters (default = false)
 - `guaranteed` - whether cards of this rarity are guaranteed in a '4-diamond or higher' booster (inferred if not set)
 - `rare_count` - counts for this rarity in rare boosters (if different from regular boosters)
+- `rare_last_slot` - whether cards of this rarity can appear in the last slot of a rare booster (default = true). E.g. in Deluxe Pack MEGA, 1-star cards can't appear in the 4th slot
 - `plus_one` - whether the cards are only available as the 6th card in a 'regular + 1' booster
 - `themed_rare` - whether the cards are available in 'themed rare' booster packs
 

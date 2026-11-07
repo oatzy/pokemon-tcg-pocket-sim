@@ -141,6 +141,30 @@ class TestExpansion:
             else:
                 assert item[1][1] in range(2)
 
+    def test_open_rare_excludes_last_slot(self):
+        r1 = Rarity(
+            name="star",
+            cost=400,
+            offering_rate=(0, 0, 100, 0),
+            counts={ANY: 5},
+            rare=True,
+            rare_last_slot=False,
+        )
+        r2 = Rarity(
+            name="crown",
+            cost=2500,
+            offering_rate=(0, 0, 0, 100),
+            counts={ANY: 1},
+            rare=True,
+        )
+        exp = Expansion(
+            name="Test", variants=[ANY], rarities=(r1, r2), cards_per_pack=4
+        )
+        for _ in range(50):
+            result = exp.open_rare(ANY)
+            assert len(result) == 4
+            assert result[-1][0] == "crown"
+
     def test_open_regular(self):
         r1 = Rarity(
             name="diamond",
