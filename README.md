@@ -32,7 +32,7 @@ The following are the average number of packs you would need to open to obtain a
 | Eevee Grove             |    182 |      906 |
 | Wisdom of Sea and Sky   |    521 |     1820 |
 | Secluded Springs        |    176 |      862 |
-| Deluxe Pack ex          |   1036 |     1051 |
+| Deluxe Pack ex          |   1045 |     1062 |
 
 ### Series B
 
@@ -48,7 +48,7 @@ The following are the average number of packs you would need to open to obtain a
 | Everyday Wonders        |    150 |      978 |
 | Ruler of the Skies      |    476 |     1750 |
 | Team Rocket's Ambition  |    175 |     1130 |
-| Deluxe Pack MEGA        |    448 |     1199 |
+| Deluxe Pack MEGA        |   1191 |     1202 |
 
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
