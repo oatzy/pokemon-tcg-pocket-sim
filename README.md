@@ -66,7 +66,6 @@ When combined with a 'mission', the initial state must be restricted to cards wi
 
 Initial state is define in a json format file. The `data/collected` directory contains a description, along with some examples.
 
-
 ## TODO
 
 Features:
@@ -80,3 +79,7 @@ Quality of life:
 - Improve performance
 - Logging and error handling
 - Input validation
+
+## AI Disclosure
+
+Prior to "Deluxe Pack MEGA" (2026-11-07) the code and design was wholly human. Thereafter, the repo is Claude-assisted, with all changes going through my human review and approval.
