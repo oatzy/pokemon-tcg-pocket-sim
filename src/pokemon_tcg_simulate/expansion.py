@@ -263,5 +263,5 @@ def create_common_mission(expansion: Expansion):
     return {
         "expansion": expansion.name,
         "mission": "Collect all common cards",
-        "cards": {r.name: r.counts.copy() for r in expansion.rarities if not r.rare},
+        "cards": {r.name: r.counts.copy() for r in expansion.rarities if r.common},
     }

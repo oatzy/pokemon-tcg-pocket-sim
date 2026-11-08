@@ -50,6 +50,12 @@ The following are the average number of packs you would need to open to obtain a
 | Team Rocket's Ambition  |    175 |     1130 |
 | Deluxe Pack MEGA        |   1191 |     1202 |
 
+### Series C
+
+| Expansion               | Common | Complete |
+| ----------------------- | -----: | -------: |
+| Dual Fusion             |    452 |     2241 |
+
 This suggests, for example, that free players would on average need to open 2 Genetic Apex boosters a day for ~3 years to complete that set.
 
 ## Missions
